@@ -16,6 +16,9 @@ import java.util.ArrayList;
  */
 public class MessageList implements IMessagePublisher {
 
+    public static final String TYPE = "type";
+    public static final String MESSAGE_TYPE = "message";
+    public static final String EDITED_BY = "edited_by";
     ArrayList<ISubscribe> subscribers = new ArrayList<ISubscribe>();
     CouchDbClient couchDbClient;
     //Changes changes;
@@ -76,11 +79,11 @@ public class MessageList implements IMessagePublisher {
     }
 
     private boolean checkIfDocIsMessage(JsonObject doc) {
-        return doc.has("type") && doc.get("type").toString().contains("message");
+        return doc.has(TYPE) && doc.get(TYPE).toString().contains(MESSAGE_TYPE);
     }
 
     private Message convertJsonObjectToMessage(JsonObject doc){
-        return new Message(doc.get("message").toString(), doc.get("edited_by").toString());
+        return new Message(doc.get(MESSAGE_TYPE).toString(), doc.get(EDITED_BY).toString());
     }
 
     private void publish(Message m){

@@ -1,6 +1,5 @@
 package couchdb;
 
-import MessageObserver.Message;
 import org.lightcouch.CouchDbClient;
 
 import java.util.UUID;
@@ -11,7 +10,8 @@ import java.util.UUID;
 public class MessageSender implements ISendMessage {
 
     CouchDbClient couchDbclient;
-    private final String messageUpdateHandler = "jchat/addMessage";
+    private final String MESSAGE_UPDATE_HANDLER = "jchat/addMessage";
+    private final String MESSAGE_QUERY_FIELD = "message=";
 
     private CouchDbClient getCouchDbclient() {
         return couchDbclient;
@@ -27,7 +27,7 @@ public class MessageSender implements ISendMessage {
 
     @Override
     public void sendMessage(String s) {
-        getCouchDbclient().invokeUpdateHandler(messageUpdateHandler, UUID.randomUUID().toString(), "message="+s);
+        getCouchDbclient().invokeUpdateHandler(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(), MESSAGE_QUERY_FIELD +s);
     }
 
 }
