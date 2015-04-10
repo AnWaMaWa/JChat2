@@ -1,12 +1,12 @@
+import ChatCommands.CommandList;
 import couchdb.MessageFilter;
 import couchdb.MessageList;
-import couchdb.MessageSender;
+import couchdb.QuerySender;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.UUID;
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -32,12 +32,13 @@ public class app {
 
         CouchDbClient dbClient = new CouchDbClient(properties);
 
-        MessageSender ms = new MessageSender(dbClient);
+        QuerySender ms = new QuerySender(dbClient);
         MessageFilter mf = new MessageFilter(dialog.getUsername());
         MessageList ml = new MessageList(dbClient,mf);
+        CommandList cl = new CommandList(ms,dialog.getUsername());
 
 
-        ChatWindow cw = new ChatWindow(ms, "Inner");
+        ChatWindow cw = new ChatWindow(ms,cl, "Inner");
         JFrame mainFrame = new JFrame("Chat Window");
 
         ml.startListeningToChanges();

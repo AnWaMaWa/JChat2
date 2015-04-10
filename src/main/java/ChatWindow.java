@@ -1,3 +1,4 @@
+import ChatCommands.CommandList;
 import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import couchdb.ISendMessage;
@@ -15,27 +16,29 @@ import java.awt.event.KeyEvent;
  * Created by awaigand on 09.04.2015.
  */
 public class ChatWindow extends JPanel implements ISubscribe {
+    private static final String COMMAND_PREFIX = "\\";
     private JTextField messageInput;
     private JScrollPane scrollPane1;
     private JTextPane messagePane;
     private JPanel rootPane;
     private JButton loadHistory;
     final private ISendMessage messageSender;
+    final private CommandList commandList;
 
     public JPanel getMainPane() {
         return rootPane;
     }
 
-    public ChatWindow(final ISendMessage messageSender, String title) {
+    public ChatWindow(final ISendMessage messageSender, CommandList cl, String title) {
         super();
+        this.commandList = cl;
         this.messageSender = messageSender;
 
 
         messageInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                messageSender.sendMessage(messageInput.getText());
+                processInput(messageInput.getText());
                 messageInput.setText("");
             }
         });
@@ -45,6 +48,14 @@ public class ChatWindow extends JPanel implements ISubscribe {
 
             }
         });
+    }
+
+    private void processInput(String input){
+        if(input.startsWith(COMMAND_PREFIX)){
+            append(commandList.runCommand(input));
+        }else{
+            messageSender.sendMessage(input);
+        }
     }
 
     private void prepend(String s) {

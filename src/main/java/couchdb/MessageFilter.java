@@ -35,5 +35,6 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
     @Override
     public void replaceFilter(String[] filters) {
         filter =  new HashSet<String>(Arrays.asList(filters));
+        addAcceptedReceiver(username);
     }
 }
