@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
 public class Login extends JDialog {
@@ -8,14 +9,14 @@ public class Login extends JDialog {
     private JPasswordField password;
     private JTextField username;
 
-    public String getUsername(){
+    public String getUsername() {
         return username.getText();
     }
 
-    public String getPassword(){
+    public String getPassword() {
         return password.getText();
     }
-    
+
     public Login() {
         setContentPane(contentPane);
         setModal(true);
@@ -65,4 +66,5 @@ public class Login extends JDialog {
         dialog.setVisible(true);
         System.exit(0);
     }
+
 }

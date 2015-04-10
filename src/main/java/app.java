@@ -1,3 +1,4 @@
+import couchdb.MessageFilter;
 import couchdb.MessageList;
 import couchdb.MessageSender;
 import org.lightcouch.CouchDbClient;
@@ -32,7 +33,8 @@ public class app {
         CouchDbClient dbClient = new CouchDbClient(properties);
 
         MessageSender ms = new MessageSender(dbClient);
-        MessageList ml = new MessageList(dbClient);
+        MessageFilter mf = new MessageFilter(dialog.getUsername());
+        MessageList ml = new MessageList(dbClient,mf);
 
 
         ChatWindow cw = new ChatWindow(ms, "Inner");

@@ -4,10 +4,7 @@ import MessageObserver.IMessagePublisher;
 import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import com.google.gson.JsonObject;
-import org.lightcouch.Changes;
-import org.lightcouch.ChangesResult;
-import org.lightcouch.CouchDbClient;
-import org.lightcouch.CouchDbInfo;
+import org.lightcouch.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +16,20 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
 
     public static final String TYPE = "type";
     public static final String MESSAGE_TYPE = "message";
+    public static final String FILTER_TYPE = "filter";
     public static final String EDITED_BY = "edited_by";
+    public static final String OWNER = "owner";
     ArrayList<ISubscribe> subscribers = new ArrayList<ISubscribe>();
     CouchDbClient couchDbClient;
-    //Changes changes;
+    MessageFilter messageFilter;
 
-    /*public Changes getChanges() {
-        return changes;
+    private MessageFilter getMessageFilter() {
+        return messageFilter;
     }
 
-    public void setChanges(Changes changes) {
-        this.changes = changes;
-    }*/
+    private void setMessageFilter(MessageFilter messageFilter) {
+        this.messageFilter = messageFilter;
+    }
 
     private ArrayList<ISubscribe> getSubscribers() {
         return subscribers;
@@ -48,8 +47,9 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         this.subscribers = subscribers;
     }
 
-    public MessageList(CouchDbClient cbd){
+    public MessageList(CouchDbClient cbd, MessageFilter mf){
         setCouchDbClient(cbd);
+        setMessageFilter(mf);
     }
 
     public void startListeningToChanges(){
@@ -69,8 +69,15 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
                         String docId = feed.getId();
                         JsonObject doc = feed.getDoc();
 
-                        if(checkIfDocIsMessage(doc)){
-                            publish(convertJsonObjectToMessage(doc));
+                        if(checkIfDocIsOfType(doc,MESSAGE_TYPE)){
+                            Message m = getCouchDbClient().getGson().fromJson(doc,Message.class);
+                            if(messageFilter.checkIfMessageIsForUser(m))
+                                publish(m);
+                        }else if(checkIfUserIsOwner(doc)){
+                            if(checkIfDocIsOfType(doc,FILTER_TYPE)){
+                                Filter f = getCouchDbClient().getGson().fromJson(doc,Filter.class);
+                                messageFilter.replaceFilter(f.getFilter());
+                            }
                         }
                     }
                 }
@@ -81,8 +88,12 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
 
     }
 
-    private boolean checkIfDocIsMessage(JsonObject doc) {
-        return doc.has(TYPE) && doc.get(TYPE).toString().contains(MESSAGE_TYPE);
+    private boolean checkIfUserIsOwner(JsonObject doc){
+        return doc.has(OWNER) && doc.get(OWNER).getAsString().equals(messageFilter.username);
+    }
+
+    private boolean checkIfDocIsOfType(JsonObject doc, String type) {
+        return doc.has(TYPE) && doc.get(TYPE).getAsString().equals(type);
     }
 
     private Message convertJsonObjectToMessage(JsonObject doc){

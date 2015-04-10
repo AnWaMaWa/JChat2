@@ -22,7 +22,7 @@ public class ChatWindow extends JPanel implements ISubscribe {
     private JButton loadHistory;
     final private ISendMessage messageSender;
 
-    public JPanel getMainPane(){
+    public JPanel getMainPane() {
         return rootPane;
     }
 
@@ -47,11 +47,11 @@ public class ChatWindow extends JPanel implements ISubscribe {
         });
     }
 
-    private void prepend(String s){
+    private void prepend(String s) {
         try {
             Document doc = messagePane.getDocument();
-            doc.insertString(0, s+"\n", null);
-        } catch(BadLocationException exc) {
+            doc.insertString(0, s + "\n", null);
+        } catch (BadLocationException exc) {
             exc.printStackTrace();
         }
     }
@@ -59,14 +59,15 @@ public class ChatWindow extends JPanel implements ISubscribe {
     private void append(String s) {
         try {
             Document doc = messagePane.getDocument();
-            doc.insertString(doc.getLength(), s+"\n", null);
-        } catch(BadLocationException exc) {
+            doc.insertString(doc.getLength(), s + "\n", null);
+        } catch (BadLocationException exc) {
             exc.printStackTrace();
         }
     }
 
     @Override
     public void notify(Message m) {
-        append(m.getUser() + ": " +m.getBody());
+        append(m.getUser() + ": " + m.getBody());
     }
+
 }
