@@ -30,7 +30,7 @@ public class QuerySender implements ISendMessage, ISendQuery {
     private String buildMessageQuery(String messageWithReciever){
         Message message = Message.FromMessageAndReceiverFactory(messageWithReciever);
         if(message.getReceiver()!=null)
-            return buildQueryField(MESSAGE_QUERY_FIELD,message.getBody())+"&"+buildQueryField(TO_QUERY_FIELD,message.getReceiver());
+            return buildQueryField(MESSAGE_QUERY_FIELD,message.getBody())+"&"+buildQueryField(TO_QUERY_FIELD,getCouchDbclient().getGson().toJson(message.getReceiver()));
         else
             return buildQueryField(MESSAGE_QUERY_FIELD,message.getBody());
     }

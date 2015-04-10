@@ -24,7 +24,7 @@ public class JoinGroupCommand extends AbstractCouchCommand {
     }
 
     private boolean checkCommandArgs(String commandArgs){
-        return !commandArgs.contains(" ");
+        return !commandArgs.contains(" ") && commandArgs.startsWith("#");
     }
 
     @Override
@@ -33,7 +33,7 @@ public class JoinGroupCommand extends AbstractCouchCommand {
              getQuerySender().sendQuery(JOIN_GROUP_UPDATE_HANDLER,getFilterDocumentId(),buildQueryField(FILTER_QUERY_PARAM,commandArgs));
              return "Joined group " + commandArgs;
          }else{
-             return "The group you want to join can not contain spaces! Your input: " + commandArgs;
+             return "The group you want to join can not contain spaces and has to start with a #! Your input: " + commandArgs;
          }
     }
 
