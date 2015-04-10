@@ -26,8 +26,8 @@ public class MessageSender implements ISendMessage {
     }
 
     @Override
-    public void sendMessage(String s) {
-        getCouchDbclient().invokeUpdateHandler(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(), MESSAGE_QUERY_FIELD +s);
+    public void sendMessage(String message) {
+        getCouchDbclient().invokeUpdateHandler(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(), MESSAGE_QUERY_FIELD +message);
     }
 
 }

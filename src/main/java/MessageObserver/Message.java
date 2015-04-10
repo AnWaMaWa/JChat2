@@ -9,8 +9,8 @@ public class Message implements IMessage {
     private String user;
 
     public Message(String body, String user){
-        this.body = body;
-        this.user = user;
+        this.body = body.substring(1,body.length()-1);
+        this.user = user.substring(1,user.length()-1);
     }
 
     @Override
