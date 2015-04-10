@@ -10,11 +10,12 @@ import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbInfo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by awaigand on 09.04.2015.
  */
-public class MessageList implements IMessagePublisher {
+public class MessageList implements IMessagePublisher, IMessageHistory {
 
     public static final String TYPE = "type";
     public static final String MESSAGE_TYPE = "message";
@@ -76,6 +77,8 @@ public class MessageList implements IMessagePublisher {
             }
         }.start();
 
+
+
     }
 
     private boolean checkIfDocIsMessage(JsonObject doc) {
@@ -100,5 +103,10 @@ public class MessageList implements IMessagePublisher {
     @Override
     public void unsubscribe(ISubscribe subscriber) {
         getSubscribers().remove(subscriber);
+    }
+
+    @Override
+    public List<Message> getMessageHistory(int offset, int limit) {
+        return null;
     }
 }

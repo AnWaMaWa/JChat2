@@ -19,6 +19,7 @@ public class ChatWindow extends JPanel implements ISubscribe {
     private JScrollPane scrollPane1;
     private JTextPane messagePane;
     private JPanel rootPane;
+    private JButton loadHistory;
     final private ISendMessage messageSender;
 
     public JPanel getMainPane(){
@@ -36,6 +37,12 @@ public class ChatWindow extends JPanel implements ISubscribe {
 
                 messageSender.sendMessage(messageInput.getText());
                 messageInput.setText("");
+            }
+        });
+        loadHistory.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
             }
         });
     }
