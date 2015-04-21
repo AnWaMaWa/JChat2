@@ -14,7 +14,12 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
 
     public MessageFilter(String username){
         this.username = username;
+        addDefaultReceivers();
+    }
+
+    private void addDefaultReceivers(){
         addAcceptedReceiver("@"+username);
+        addAcceptedReceiver("@global");
     }
 
     @Override
@@ -29,6 +34,8 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
 
     @Override
     public boolean checkIfMessageIsForUser(Message m) {
+        if(m.getReceiver().length == 0)
+            return true; //global
         for(String receiver : m.getReceiver()){
             if(filter.contains(receiver))
                 return true;
@@ -39,6 +46,6 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
     @Override
     public void replaceFilter(String[] filters) {
         filter =  new HashSet<String>(Arrays.asList(filters));
-        addAcceptedReceiver("@"+username);
+        addDefaultReceivers();
     }
 }

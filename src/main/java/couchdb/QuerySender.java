@@ -42,7 +42,7 @@ public class QuerySender implements ISendMessage, ISendQuery {
     @Override
     public void sendMessage(String messageWithReceiver) {
         String query = buildMessageQuery(messageWithReceiver);
-        getCouchDbclient().invokeUpdateHandler(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(), query);
+        sendQuery(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(),query);
     }
 
     @Override
