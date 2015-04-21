@@ -81,4 +81,9 @@ public class ChatWindow extends JPanel implements ISubscribe {
         append(m.getUser() + ": " + m.getBody());
     }
 
+    @Override
+    public void notify(String m) {
+        append(m);
+    }
+
 }

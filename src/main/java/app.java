@@ -16,15 +16,15 @@ public class app {
 
     public static String username = "default";
 
-    public static CouchDbClient login(String error) throws Exception{
+    public static CouchDbClient login(String error) throws Exception {
         CouchDbClient dbClient = null;
         try {
             Login dialog = new Login();
-            if(error != null)
+            if (error != null)
                 dialog.toolbarText.setText(error);
             dialog.pack();
             dialog.setVisible(true);
-            if(!dialog.tryToGoOn)
+            if (!dialog.tryToGoOn)
                 throw new Exception();
 
             CouchDbProperties properties = new CouchDbProperties()
@@ -42,9 +42,9 @@ public class app {
             username = dialog.getUsername();
             return dbClient;
 
-        }catch(CouchDbException ex){
+        } catch (CouchDbException ex) {
 
-            if(dbClient!=null){
+            if (dbClient != null) {
                 dbClient.shutdown();
             }
             return login(ex.getMessage());
@@ -54,29 +54,25 @@ public class app {
     public static void main(String[] args) {
 
 
-            try {
-                CouchDbClient dbClient = login(null);
-                QuerySender ms = new QuerySender(dbClient);
-                MessageFilter mf = new MessageFilter(username);
-                MessageList ml = new MessageList(dbClient, mf);
-                CommandList cl = new CommandList(ms, username);
-                ChatWindow cw = new ChatWindow(ms, cl, "Inner");
-                JFrame mainFrame = new JFrame("Chat Window");
+        try {
+            CouchDbClient dbClient = login(null);
+            QuerySender ms = new QuerySender(dbClient);
+            MessageFilter mf = new MessageFilter(username);
+            MessageList ml = new MessageList(dbClient, mf);
+            CommandList cl = new CommandList(ms, username);
+            ChatWindow cw = new ChatWindow(ms, cl, "Inner");
+            JFrame mainFrame = new JFrame("Chat Window");
 
-                ml.startListeningToChanges();
-                ml.subscribe(cw);
-                mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
-                mainFrame.setContentPane(cw.getMainPane());
-                mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                mainFrame.pack();
-                mainFrame.setVisible(true);
-            }catch(Exception ex){
+            ml.startListeningToChanges();
+            ml.subscribe(cw);
+            mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
+            mainFrame.setContentPane(cw.getMainPane());
+            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            mainFrame.pack();
+            mainFrame.setVisible(true);
+        } catch (Exception ex) {
 
-            }
-
-
-
-
+        }
 
 
     }

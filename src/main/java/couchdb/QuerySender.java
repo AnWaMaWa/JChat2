@@ -2,7 +2,9 @@ package couchdb;
 
 import MessageObserver.Message;
 import org.lightcouch.CouchDbClient;
+import org.lightcouch.CouchDbException;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -47,6 +49,10 @@ public class QuerySender implements ISendMessage, ISendQuery {
 
     @Override
     public void sendQuery(String handler, String id, String query) {
-        getCouchDbclient().invokeUpdateHandler(handler,id,query);
+        try {
+            getCouchDbclient().invokeUpdateHandler(handler, id, query);
+        }catch(CouchDbException ex){
+            System.out.println(ex.getMessage());
+        }
     }
 }

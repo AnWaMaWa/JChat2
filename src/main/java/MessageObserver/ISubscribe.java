@@ -5,4 +5,5 @@ package MessageObserver;
  */
 public interface ISubscribe {
     public void notify(Message m);
+    public void notify(String m);
 }

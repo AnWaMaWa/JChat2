@@ -19,6 +19,8 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
     public static final String FILTER_TYPE = "filter";
     public static final String EDITED_BY = "edited_by";
     public static final String OWNER = "owner";
+    private String since = "";
+    private Thread currentMessageThread;
     ArrayList<ISubscribe> subscribers = new ArrayList<ISubscribe>();
     CouchDbClient couchDbClient;
     MessageFilter messageFilter;
@@ -52,23 +54,60 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         setMessageFilter(mf);
     }
 
-    public void startListeningToChanges(){
-        CouchDbInfo dbInfo = getCouchDbClient().context().info();
-        final String since = dbInfo.getUpdateSeq();
+    private void setCurrentMessageThread(Thread messageThread){
+        this.currentMessageThread = messageThread;
+    }
 
-        new Thread("messageListener"){
+    private synchronized void setCurrentSince(String since){
+        this.since = since;
+    }
+
+    private synchronized String getCurrentSince(){
+        return this.since;
+    }
+
+    private boolean checkIfGoOn(Changes changes){
+        try {
+            return changes.hasNext();
+        }catch(CouchDbException ex){
+            publish(ex.getMessage());
+            return true;
+        }
+    }
+
+    private Thread heartbeatThreadFactory(){
+        return new Thread("heartbeat"){
+            public void run(){
+                try {
+                    while (true) {
+                        getCouchDbClient().context().info();
+                        Thread.sleep(5000);
+                    }
+                }catch(CouchDbException ex){
+                    publish("Cannot connect to current server, while try others.");
+                    currentMessageThread.stop();
+                }catch(InterruptedException ex){
+
+                }
+            }
+        };
+    }
+
+    private Thread messageThreadFactory(){
+        return new Thread("messageListener"){
             public void run(){
                 final Changes changes = getCouchDbClient().changes()
                         .includeDocs(true)
                         .heartBeat(1000)
-                        .since(since)
+                        .timeout(3000)
+                        .since(getCurrentSince())
                         .continuousChanges();
-                while (changes.hasNext()) {
+                while (checkIfGoOn(changes)) {
                     ChangesResult.Row feed = changes.next();
                     if(feed != null) {
                         String docId = feed.getId();
                         JsonObject doc = feed.getDoc();
-
+                        setCurrentSince(feed.getSeq());
                         if(checkIfDocIsOfType(doc,MESSAGE_TYPE)){
                             Message m = getCouchDbClient().getGson().fromJson(doc,Message.class);
                             if(messageFilter.checkIfMessageIsForUser(m))
@@ -82,10 +121,15 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
                     }
                 }
             }
-        }.start();
+        };
+    }
 
-
-
+    public void startListeningToChanges(){
+        CouchDbInfo dbInfo = getCouchDbClient().context().info();
+        setCurrentSince(dbInfo.getUpdateSeq());
+        setCurrentMessageThread(messageThreadFactory());
+        currentMessageThread.start();
+        heartbeatThreadFactory().start();
     }
 
     private boolean checkIfUserIsOwner(JsonObject doc){
@@ -100,7 +144,13 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         return new Message(doc.get(MESSAGE_TYPE).toString(), doc.get(EDITED_BY).toString());
     }
 
-    private void publish(Message m){
+    private synchronized void publish(Message m){
+        for(ISubscribe sub : subscribers){
+            sub.notify(m);
+        }
+    }
+
+    private synchronized void publish(String m){
         for(ISubscribe sub : subscribers){
             sub.notify(m);
         }
