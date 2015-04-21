@@ -1,6 +1,7 @@
 import ChatCommands.CommandList;
 import CustomException.NoMoreServerException;
 import config.ConfigHandler;
+import couchdb.DBClientWrapper;
 import couchdb.MessageFilter;
 import couchdb.MessageList;
 import couchdb.QuerySender;
@@ -22,6 +23,7 @@ import java.util.Iterator;
 public class app {
 
     public static String username = "default";
+    public static String password = "default";
 
     public static CouchDbClient login(String error, Iterator serverIterator) throws IllegalComponentStateException, NoMoreServerException {
         CouchDbClient dbClient = null;
@@ -58,6 +60,7 @@ public class app {
 
             dbClient = new CouchDbClient(properties);
             username = dialog.getUsername();
+            password = dialog.getPassword();
             return dbClient;
 
         } catch (CouchDbException ex) {
@@ -90,11 +93,18 @@ public class app {
 
 
 
-           CouchDbClient dbClient = retry(null, config);
+            CouchDbClient dbClient = retry(null, config);
+            ConfigHandler.username = username;
+            ConfigHandler.password = password;
 
-            QuerySender ms = new QuerySender(dbClient);
             MessageFilter mf = new MessageFilter(username);
-            MessageList ml = new MessageList(dbClient, mf);
+            MessageList ml = new MessageList(mf);
+
+            DBClientWrapper dbcw = new DBClientWrapper(dbClient,config,ml);
+            ml.setClientWrapper(dbcw);
+
+            QuerySender ms = new QuerySender(dbcw);
+
             CommandList cl = new CommandList(ms, username);
             ChatWindow cw = new ChatWindow(ms, cl, "Inner");
             JFrame mainFrame = new JFrame("Chat Window - " + username);

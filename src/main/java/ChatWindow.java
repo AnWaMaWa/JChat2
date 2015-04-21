@@ -50,11 +50,20 @@ public class ChatWindow extends JPanel implements ISubscribe {
         });
     }
 
+    private Thread messageSenderThreadFactory(final String message){
+        return new Thread(){
+            public void run(){
+                messageSender.sendMessage(message);
+            }
+        };
+    }
+
     private void processInput(String input){
         if(input.startsWith(COMMAND_PREFIX)){
             append(commandList.runCommand(input));
         }else{
-            messageSender.sendMessage(input);
+
+            messageSenderThreadFactory(input).start();
         }
     }
 

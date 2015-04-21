@@ -21,6 +21,8 @@ public class ConfigHandler {
     public static final String ROOT_ELEMENT_NAME = "JChat";
     public static final String SERVER_ELEMENT_NAME = "server";
     public static final String PORT_ATTRIBUTE_NAME = "PORT";
+    public static String username;
+    public static String password;
     private Document document;
 
     private Document getDocument() {
@@ -67,7 +69,6 @@ public class ConfigHandler {
         Element servers = root.addElement(SERVERS_ELEMENT_NAME);
 
         addServerToElement(servers, "193.196.7.76", "8080");
-        addServerToElement(servers, "193.196.7.76", "8082");
 
         return document;
     }

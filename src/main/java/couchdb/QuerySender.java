@@ -16,17 +16,16 @@ public class QuerySender implements ISendMessage, ISendQuery {
     private final String MESSAGE_UPDATE_HANDLER = "jchat/addMessage";
     private final String MESSAGE_QUERY_FIELD = "message";
     private final String TO_QUERY_FIELD = "to";
+    private DBClientWrapper dbcw;
 
     private CouchDbClient getCouchDbclient() {
-        return couchDbclient;
+        return dbcw.getCouchDbClient();
     }
 
-    private void setCouchDbclient(CouchDbClient couchDbclient) {
-        this.couchDbclient = couchDbclient;
-    }
 
-    public QuerySender(CouchDbClient cdb){
-        setCouchDbclient(cdb);
+
+    public QuerySender(DBClientWrapper cdb){
+        dbcw = cdb;
     }
 
     private String buildMessageQuery(String messageWithReciever){
@@ -52,7 +51,8 @@ public class QuerySender implements ISendMessage, ISendQuery {
         try {
             getCouchDbclient().invokeUpdateHandler(handler, id, query);
         }catch(CouchDbException ex){
-            System.out.println(ex.getMessage());
+            dbcw.replaceCouchDbClient();
+            sendQuery(handler,id,query);
         }
     }
 }

@@ -22,7 +22,7 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
     private String since = "";
     private Thread currentMessageThread;
     ArrayList<ISubscribe> subscribers = new ArrayList<ISubscribe>();
-    CouchDbClient couchDbClient;
+    DBClientWrapper clientWrapper;
     MessageFilter messageFilter;
 
     private MessageFilter getMessageFilter() {
@@ -38,19 +38,15 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
     }
 
     private CouchDbClient getCouchDbClient() {
-        return couchDbClient;
+        return clientWrapper.getCouchDbClient();
     }
 
-    private void setCouchDbClient(CouchDbClient couchDbClient) {
-        this.couchDbClient = couchDbClient;
-    }
 
     private void setSubscribers(ArrayList<ISubscribe> subscribers) {
         this.subscribers = subscribers;
     }
 
-    public MessageList(CouchDbClient cbd, MessageFilter mf){
-        setCouchDbClient(cbd);
+    public MessageList(MessageFilter mf) {
         setMessageFilter(mf);
     }
 
@@ -81,11 +77,14 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
                 try {
                     while (true) {
                         getCouchDbClient().context().info();
-                        Thread.sleep(5000);
+                        Thread.sleep(15000);
                     }
                 }catch(CouchDbException ex){
-                    publish("Cannot connect to current server, while try others.");
+                    publish("Lost connection to current server... trying others...");
                     currentMessageThread.stop();
+                    clientWrapper.replaceCouchDbClient();
+                    currentMessageThread = messageThreadFactory();
+                    currentMessageThread.start();
                 }catch(InterruptedException ex){
 
                 }
@@ -150,7 +149,7 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         }
     }
 
-    private synchronized void publish(String m){
+    public synchronized void publish(String m){
         for(ISubscribe sub : subscribers){
             sub.notify(m);
         }
@@ -169,5 +168,13 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
     @Override
     public List<Message> getMessageHistory(int offset, int limit) {
         return null;
+    }
+
+    public void setClientWrapper(DBClientWrapper clientWrapper) {
+        this.clientWrapper = clientWrapper;
+    }
+
+    public DBClientWrapper getClientWrapper() {
+        return clientWrapper;
     }
 }
