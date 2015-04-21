@@ -8,6 +8,8 @@ public class Login extends JDialog {
     private JButton buttonCancel;
     private JPasswordField password;
     private JTextField username;
+    public JLabel toolbarText;
+    public boolean tryToGoOn = true;
 
     public String getUsername() {
         return username.getText();
@@ -52,11 +54,13 @@ public class Login extends JDialog {
 
     private void onOK() {
 // add your code here
+        tryToGoOn = true;
         dispose();
     }
 
     private void onCancel() {
 // add your code here if necessary
+        tryToGoOn = false;
         dispose();
     }
 
@@ -67,4 +71,7 @@ public class Login extends JDialog {
         System.exit(0);
     }
 
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
+    }
 }
