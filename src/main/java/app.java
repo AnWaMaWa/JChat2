@@ -12,10 +12,12 @@ import org.lightcouch.CouchDbException;
 import org.lightcouch.CouchDbProperties;
 
 import javax.swing.*;
-import javax.swing.tree.ExpandVetoException;
 import java.awt.*;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -104,16 +106,19 @@ public class app {
             ml.setClientWrapper(dbcw);
 
             QuerySender ms = new QuerySender(dbcw);
-
+            HistoryFrameFactory hff = new HistoryFrameFactory(dbcw);
             CommandList cl = new CommandList(ms, username);
-            ChatWindow cw = new ChatWindow(ms, cl, "Inner");
+            ChatWindow cw = new ChatWindow(ms, hff,cl, "Inner");
+
             JFrame mainFrame = new JFrame("Chat Window - " + username);
 
             ml.startListeningToChanges();
             ml.subscribe(cw);
             mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
             mainFrame.setContentPane(cw.getMainPane());
+
             mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
             mainFrame.pack();
             mainFrame.setVisible(true);
         } catch (IllegalComponentStateException ex) {

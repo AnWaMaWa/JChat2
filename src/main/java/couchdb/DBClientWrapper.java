@@ -2,6 +2,7 @@ package couchdb;
 
 import CustomException.NoMoreServerException;
 import MessageObserver.IMessagePublisher;
+import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import config.ConfigHandler;
 import org.dom4j.Node;
@@ -37,6 +38,15 @@ public class DBClientWrapper implements IClientHandler{
                 .query(Message.class);
         for(Message m : list){
             publisher.publish(m);
+        }
+    }
+
+    public void printHistorySince(String jsonDateTime, ISubscribe sub){
+        List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
+                .includeDocs(true).startKey(jsonDateTime)
+                .query(Message.class);
+        for(Message m : list){
+            sub.notify(m);
         }
     }
 

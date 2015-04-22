@@ -6,11 +6,9 @@ import couchdb.ISendMessage;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.util.Date;
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -21,17 +19,23 @@ public class ChatWindow extends JPanel implements ISubscribe {
     private JScrollPane scrollPane1;
     private JTextPane messagePane;
     private JPanel rootPane;
-    private JButton loadHistory;
+    private JButton historyYesterday;
+    private JButton history1Hour;
+    private JButton historyWeek;
+    private JButton historyMonth;
+    private JButton historyEver;
     final private ISendMessage messageSender;
     final private CommandList commandList;
+    private HistoryFrameFactory hf;
 
     public JPanel getMainPane() {
         return rootPane;
     }
 
-    public ChatWindow(final ISendMessage messageSender, CommandList cl, String title) {
+    public ChatWindow(final ISendMessage messageSender, final HistoryFrameFactory hf, CommandList cl, String title) {
         super();
         this.commandList = cl;
+        this.hf = hf;
         this.messageSender = messageSender;
 
 
@@ -42,10 +46,16 @@ public class ChatWindow extends JPanel implements ISubscribe {
                 messageInput.setText("");
             }
         });
-        loadHistory.addActionListener(new ActionListener() {
+        historyYesterday.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+               //Date yesteday = new Date(new Date().getYear(), new Date().getDay(), )
+            }
+        });
+        historyEver.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //hf.buildHistoryWindow(new Date(2015,4,22));
             }
         });
     }
