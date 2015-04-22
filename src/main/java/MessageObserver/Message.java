@@ -14,6 +14,7 @@ public class Message extends Document implements IMessage {
     private String message;
     private String owner;
     private String[] to;
+    public String created;
     private static Pattern receiverPattern = Pattern.compile("(^|\\s)([@#]\\S*)");
 
     public Message(String message, String user){

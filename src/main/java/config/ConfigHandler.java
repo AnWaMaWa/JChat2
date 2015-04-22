@@ -21,8 +21,12 @@ public class ConfigHandler {
     public static final String ROOT_ELEMENT_NAME = "JChat";
     public static final String SERVER_ELEMENT_NAME = "server";
     public static final String PORT_ATTRIBUTE_NAME = "PORT";
+    public static final String SINCE_ELEMENT_NAME = "since";
     public static String username;
     public static String password;
+    public static String currentSince = "2015-04-22T15:25:17.526Z";
+
+
     private Document document;
 
     private Document getDocument() {
@@ -43,6 +47,7 @@ public class ConfigHandler {
     public ConfigHandler() throws DocumentException {
         setDocument(readConfigFromFile());
     }
+
 
     public static String getIPFromServerNode(Node server){
         return server.valueOf("@"+IP_ATTRIBUTE_NAME);
@@ -67,6 +72,7 @@ public class ConfigHandler {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(ROOT_ELEMENT_NAME);
         Element servers = root.addElement(SERVERS_ELEMENT_NAME);
+        Element since = root.addElement(SINCE_ELEMENT_NAME);
 
         addServerToElement(servers, "193.196.7.76", "8080");
 
@@ -87,16 +93,6 @@ public class ConfigHandler {
         writer.write( document );
         writer.close();
 
-
-        // Pretty print the document to System.out
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        writer = new XMLWriter( System.out, format );
-        writer.write( document );
-
-        // Compact format to System.out
-        format = OutputFormat.createCompactFormat();
-        writer = new XMLWriter( System.out, format );
-        writer.write( document );
     }
 
 

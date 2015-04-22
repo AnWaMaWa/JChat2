@@ -4,6 +4,7 @@ import MessageObserver.IMessagePublisher;
 import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import com.google.gson.JsonObject;
+import config.ConfigHandler;
 import org.lightcouch.*;
 
 import java.util.ArrayList;
@@ -55,19 +56,19 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
     }
 
     private synchronized void setCurrentSince(String since){
-        this.since = since;
+        ConfigHandler.currentSince = since;
     }
 
     private synchronized String getCurrentSince(){
-        return this.since;
+        return ConfigHandler.currentSince;
     }
 
     private boolean checkIfGoOn(Changes changes){
         try {
             return changes.hasNext();
         }catch(CouchDbException ex){
-            publish(ex.getMessage());
-            return true;
+            lookForOtherNode();
+            return false;
         }
     }
 
@@ -82,9 +83,7 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
                 }catch(CouchDbException ex){
                     publish("Lost connection to current server... trying others...");
                     currentMessageThread.stop();
-                    clientWrapper.replaceCouchDbClient();
-                    currentMessageThread = messageThreadFactory();
-                    currentMessageThread.start();
+                    lookForOtherNode();
                 }catch(InterruptedException ex){
 
                 }
@@ -92,25 +91,33 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         };
     }
 
+    private void lookForOtherNode() {
+        clientWrapper.replaceCouchDbClient();
+        currentMessageThread = messageThreadFactory();
+        currentMessageThread.start();
+    }
+
     private Thread messageThreadFactory(){
-        return new Thread("messageListener"){
+        return new Thread(){
             public void run(){
                 final Changes changes = getCouchDbClient().changes()
                         .includeDocs(true)
                         .heartBeat(1000)
                         .timeout(3000)
-                        .since(getCurrentSince())
+                        .since("now")
                         .continuousChanges();
+                clientWrapper.printHistorySince(ConfigHandler.currentSince); //printing missed messages
                 while (checkIfGoOn(changes)) {
                     ChangesResult.Row feed = changes.next();
                     if(feed != null) {
                         String docId = feed.getId();
                         JsonObject doc = feed.getDoc();
-                        setCurrentSince(feed.getSeq());
                         if(checkIfDocIsOfType(doc,MESSAGE_TYPE)){
                             Message m = getCouchDbClient().getGson().fromJson(doc,Message.class);
-                            if(messageFilter.checkIfMessageIsForUser(m))
+                            if(messageFilter.checkIfMessageIsForUser(m)) {
+                                setCurrentSince(m.created);
                                 publish(m);
+                            }
                         }else if(checkIfUserIsOwner(doc)){
                             if(checkIfDocIsOfType(doc,FILTER_TYPE)){
                                 Filter f = getCouchDbClient().getGson().fromJson(doc,Filter.class);
@@ -125,7 +132,6 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
 
     public void startListeningToChanges(){
         CouchDbInfo dbInfo = getCouchDbClient().context().info();
-        setCurrentSince(dbInfo.getUpdateSeq());
         setCurrentMessageThread(messageThreadFactory());
         currentMessageThread.start();
         heartbeatThreadFactory().start();
@@ -143,7 +149,7 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         return new Message(doc.get(MESSAGE_TYPE).toString(), doc.get(EDITED_BY).toString());
     }
 
-    private synchronized void publish(Message m){
+    public synchronized void publish(Message m){
         for(ISubscribe sub : subscribers){
             sub.notify(m);
         }

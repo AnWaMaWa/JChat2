@@ -8,4 +8,5 @@ public interface IMessagePublisher {
     public void subscribe(ISubscribe subscriber);
     public void unsubscribe(ISubscribe subscriber);
     public void publish(String s);
+    public void publish(Message m);
 }

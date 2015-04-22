@@ -2,6 +2,7 @@ package couchdb;
 
 import CustomException.NoMoreServerException;
 import MessageObserver.IMessagePublisher;
+import MessageObserver.Message;
 import config.ConfigHandler;
 import org.dom4j.Node;
 import org.lightcouch.CouchDbClient;
@@ -9,6 +10,7 @@ import org.lightcouch.CouchDbException;
 import org.lightcouch.CouchDbProperties;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -17,7 +19,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DBClientWrapper implements IClientHandler{
 
-    Lock lookForServersLock = new ReentrantLock();
+    public static final String JCHAT_BY_DATE_VIEW = "jchat/byDate";
+    Lock lookForServersLock = new ReentrantLock(true);
     CouchDbClient client;
     ConfigHandler config;
     IMessagePublisher publisher;
@@ -26,6 +29,15 @@ public class DBClientWrapper implements IClientHandler{
         this.client = cbd;
         this.config = config;
         this.publisher = publisher;
+    }
+
+    public void printHistorySince(String jsonDateTime){
+        List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
+                .includeDocs(true).startKey(jsonDateTime)
+                .query(Message.class);
+        for(Message m : list){
+            publisher.publish(m);
+        }
     }
 
     private CouchDbClient createClient(String ip, String port) throws CouchDbException{
@@ -69,7 +81,7 @@ public class DBClientWrapper implements IClientHandler{
         }catch(NoMoreServerException ex){
             publisher.publish("Tried all servers, Check your internet connection! Retrying in a bit...");
             try {
-                Thread.sleep(5000);
+                Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
