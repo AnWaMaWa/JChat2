@@ -2,13 +2,14 @@ import ChatCommands.CommandList;
 import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import couchdb.ISendMessage;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -49,13 +50,36 @@ public class ChatWindow extends JPanel implements ISubscribe {
         historyYesterday.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               //Date yesteday = new Date(new Date().getYear(), new Date().getDay(), )
+                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusDays(1));
+                hist.setVisible(true);
             }
         });
         historyEver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //hf.buildHistoryWindow(new Date(2015,4,22));
+                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(2015, 3, 1, 0, 0, DateTimeZone.UTC));
+                hist.setVisible(true);
+            }
+        });
+        historyMonth.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusMonths(1));
+                hist.setVisible(true);
+            }
+        });
+        history1Hour.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusHours(1));
+                hist.setVisible(true);
+            }
+        });
+        historyWeek.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusDays(7));
+                hist.setVisible(true);
             }
         });
     }

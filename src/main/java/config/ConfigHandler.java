@@ -26,7 +26,6 @@ public class ConfigHandler {
     public static String password;
     public static String currentSince = "2015-04-22T15:25:17.526Z";
 
-
     private Document document;
 
     private Document getDocument() {

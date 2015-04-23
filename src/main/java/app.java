@@ -102,7 +102,7 @@ public class app {
             MessageFilter mf = new MessageFilter(username);
             MessageList ml = new MessageList(mf);
 
-            DBClientWrapper dbcw = new DBClientWrapper(dbClient,config,ml);
+            DBClientWrapper dbcw = new DBClientWrapper(dbClient,config,ml, mf);
             ml.setClientWrapper(dbcw);
 
             QuerySender ms = new QuerySender(dbcw);

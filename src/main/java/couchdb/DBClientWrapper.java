@@ -25,11 +25,13 @@ public class DBClientWrapper implements IClientHandler{
     CouchDbClient client;
     ConfigHandler config;
     IMessagePublisher publisher;
+    IFilterMessage mf;
 
-    public DBClientWrapper(CouchDbClient cbd, ConfigHandler config, IMessagePublisher publisher){
+    public DBClientWrapper(CouchDbClient cbd, ConfigHandler config, IMessagePublisher publisher, IFilterMessage mf){
         this.client = cbd;
         this.config = config;
         this.publisher = publisher;
+        this.mf = mf;
     }
 
     public void printHistorySince(String jsonDateTime){
@@ -37,7 +39,8 @@ public class DBClientWrapper implements IClientHandler{
                 .includeDocs(true).startKey(jsonDateTime)
                 .query(Message.class);
         for(Message m : list){
-            publisher.publish(m);
+            if(mf.checkIfMessageIsForUser(m))
+                publisher.publish(m);
         }
     }
 
@@ -46,7 +49,8 @@ public class DBClientWrapper implements IClientHandler{
                 .includeDocs(true).startKey(jsonDateTime)
                 .query(Message.class);
         for(Message m : list){
-            sub.notify(m);
+            if(mf.checkIfMessageIsForUser(m))
+                sub.notify(m);
         }
     }
 

@@ -21,13 +21,13 @@ public class HistoryFrameFactory {
 
     public HistoryFrame buildHistoryWindow(String jsonTimeSince){
         HistoryFrame historyFrame = new HistoryFrame("History since "+jsonTimeSince, dbc, jsonTimeSince);
-        historyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        historyFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         historyFrame.pack();
         return historyFrame;
     }
 
 
-    public HistoryFrame buildHistoryWindow(DateTime AnyZone){
+    public HistoryFrame buildHistoryFrame(DateTime AnyZone){
 
         return buildHistoryWindow(toJsonGMT.print(AnyZone));
     }
