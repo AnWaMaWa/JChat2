@@ -2,6 +2,10 @@ import MessageObserver.IMessagePublisher;
 import MessageObserver.ISubscribe;
 import MessageObserver.Message;
 import couchdb.DBClientWrapper;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.ISODateTimeFormat;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -42,7 +46,8 @@ public class HistoryFrame extends JFrame implements ISubscribe {
 
     @Override
     public void notify(Message m) {
-        append(m.getUser() + ": " + m.getBody());
+        DateTime dt = new DateTime(ISODateTimeFormat.dateTime().parseDateTime(m.created));
+        append(m.getUser() + "("+dt.toString(DateTimeFormat.mediumDateTime())+"): " + m.getBody());
     }
 
     @Override

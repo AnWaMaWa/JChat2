@@ -41,6 +41,7 @@ public class DBClientWrapper implements IClientHandler{
         for(Message m : list){
             if(mf.checkIfMessageIsForUser(m))
                 publisher.publish(m);
+                ConfigHandler.currentSince = m.created;
         }
     }
 
@@ -49,8 +50,10 @@ public class DBClientWrapper implements IClientHandler{
                 .includeDocs(true).startKey(jsonDateTime)
                 .query(Message.class);
         for(Message m : list){
-            if(mf.checkIfMessageIsForUser(m))
+            if(mf.checkIfMessageIsForUser(m)) {
                 sub.notify(m);
+                ConfigHandler.currentSince = m.created;
+            }
         }
     }
 

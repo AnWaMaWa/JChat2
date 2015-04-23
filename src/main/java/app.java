@@ -13,6 +13,8 @@ import org.lightcouch.CouchDbProperties;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -89,7 +91,7 @@ public class app {
                 e.printStackTrace();
             }
 
-        ConfigHandler config = new ConfigHandler();
+        final ConfigHandler config = new ConfigHandler();
 
         try {
 
@@ -112,12 +114,23 @@ public class app {
 
             JFrame mainFrame = new JFrame("Chat Window - " + username);
 
+            mainFrame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    try {
+                        config.writeSinceTime();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                        System.exit(0);
+                }
+            });
+
             ml.startListeningToChanges();
             ml.subscribe(cw);
             mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
             mainFrame.setContentPane(cw.getMainPane());
 
-            mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
             mainFrame.pack();
             mainFrame.setVisible(true);

@@ -4,6 +4,9 @@ import org.dom4j.*;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,9 +25,10 @@ public class ConfigHandler {
     public static final String SERVER_ELEMENT_NAME = "server";
     public static final String PORT_ATTRIBUTE_NAME = "PORT";
     public static final String SINCE_ELEMENT_NAME = "since";
+    public static final String SINCE_XPATH = "//" + ROOT_ELEMENT_NAME + "/" + SINCE_ELEMENT_NAME;
     public static String username;
     public static String password;
-    public static String currentSince = "2015-04-22T15:25:17.526Z";
+    public static String currentSince;
 
     private Document document;
 
@@ -36,6 +40,15 @@ public class ConfigHandler {
         this.document = document;
     }
 
+    public void writeSinceTime() throws IOException{
+        Element ele = (Element) document.selectSingleNode(SINCE_XPATH);
+        ele.setText(currentSince);
+        XMLWriter writer = new XMLWriter(
+                new FileWriter(CONFIG_FILE_NAME)
+        );
+        writer.write( document );
+        writer.close();
+    }
 
     private Document readConfigFromFile() throws DocumentException {
         SAXReader reader = new SAXReader();
@@ -45,6 +58,9 @@ public class ConfigHandler {
 
     public ConfigHandler() throws DocumentException {
         setDocument(readConfigFromFile());
+
+        Node node = document.selectSingleNode(SINCE_XPATH);
+        currentSince = node.getText();
     }
 
 
@@ -74,6 +90,7 @@ public class ConfigHandler {
         Element since = root.addElement(SINCE_ELEMENT_NAME);
 
         addServerToElement(servers, "193.196.7.76", "8080");
+        since.setText(new DateTime(DateTimeZone.UTC).toString(ISODateTimeFormat.dateTime()));
 
         return document;
     }

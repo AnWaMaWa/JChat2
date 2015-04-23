@@ -10,6 +10,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -38,7 +40,6 @@ public class ChatWindow extends JPanel implements ISubscribe {
         this.commandList = cl;
         this.hf = hf;
         this.messageSender = messageSender;
-
 
         messageInput.addActionListener(new ActionListener() {
             @Override
