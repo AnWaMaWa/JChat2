@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.*;
 
 public class Login extends JDialog {
@@ -74,4 +73,5 @@ public class Login extends JDialog {
     private void createUIComponents() {
         // TODO: place custom component creation code here
     }
+
 }

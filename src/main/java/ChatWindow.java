@@ -10,8 +10,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+
 
 /**
  * Created by awaigand on 09.04.2015.
@@ -85,18 +84,18 @@ public class ChatWindow extends JPanel implements ISubscribe {
         });
     }
 
-    private Thread messageSenderThreadFactory(final String message){
-        return new Thread(){
-            public void run(){
+    private Thread messageSenderThreadFactory(final String message) {
+        return new Thread() {
+            public void run() {
                 messageSender.sendMessage(message);
             }
         };
     }
 
-    private void processInput(String input){
-        if(input.startsWith(COMMAND_PREFIX)){
+    private void processInput(String input) {
+        if (input.startsWith(COMMAND_PREFIX)) {
             append(commandList.runCommand(input));
-        }else{
+        } else {
 
             messageSenderThreadFactory(input).start();
         }
