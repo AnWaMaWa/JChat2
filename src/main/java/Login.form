@@ -103,7 +103,7 @@
           <component id="1a94e" class="javax.swing.JLabel" binding="toolbarText">
             <constraints/>
             <properties>
-              <text value="JChat v1"/>
+              <text value="Seseragi v1"/>
             </properties>
           </component>
         </children>
