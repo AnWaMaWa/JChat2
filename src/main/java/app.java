@@ -127,7 +127,13 @@ public class app {
 
         CouchDbClient dbClient = showLoginDialog(PRODUCT_DESIGNATION, config);
 
-
+        //Even though ConfigHandler.username is now a public static string, it used to be
+        //private, which is why several classes still need it in their constructor.
+        //In a future version, this may be fixed, but since this does not change the functionality
+        //in any way, it is kept for now.
+        //This method of keeping two different architectures in parallel for a certain time is based on Kent Beck's
+        //Parallel Architecture method of agile refactoring.
+        //TODO: Change classes to use ConfigHandler.username and remove from constructors
         MessageFilter messageFilter = new MessageFilter(ConfigHandler.username);
         MessageReceiver messageReceiver = new MessageReceiver(messageFilter);
 
@@ -153,7 +159,7 @@ public class app {
             }
         });
 
-        messageReceiver.startListeningToDatabaseChanges();
+        messageReceiver.startListeningToDatabaseChanges(); //Activates message getting
         messageReceiver.subscribe(chatWindow); //Chat Window will be notified once new messages are received
         mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
         mainFrame.setContentPane(chatWindow.getMainPane());
@@ -163,7 +169,7 @@ public class app {
     }
 
     /**
-     * Used for looping login trys and resetting the server iterator once all nodes have been tried.
+     * Used for looping login tries and resetting the server iterator once all nodes have been tried.
      *
      * @param message A message which will be displayed at the bottom of the login page
      * @param config  ConfigHandler, used to get the server iterator.
