@@ -27,6 +27,12 @@ public class Message extends Document implements IMessage {
 
     }
 
+    /**
+     * Takes raw user input data and turns it into a message object.
+     * It also parses receiver, which are individuals (starting with @) and groups (starting with #)
+     * @param messageAndReceiver Raw Input Data like "Hello! @user1 #friends"
+     * @return Message Object made from raw input data.
+     */
     public static Message FromMessageAndReceiverFactory(String messageAndReceiver) {
         Message message = new Message();
         Matcher m = receiverPattern.matcher(messageAndReceiver);
