@@ -40,7 +40,6 @@ public class Login extends JDialog {
             }
         });
 
-// call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -48,7 +47,6 @@ public class Login extends JDialog {
             }
         });
 
-// call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
@@ -57,13 +55,11 @@ public class Login extends JDialog {
     }
 
     private void onOK() {
-// add your code here
         tryToGoOn = true;
         dispose();
     }
 
     private void onCancel() {
-// add your code here if necessary
         tryToGoOn = false;
         dispose();
     }

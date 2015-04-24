@@ -4,6 +4,7 @@ import MessageObserver.Message;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import config.ConfigHandler;
 import couchdb.ISendMessage;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -44,6 +45,7 @@ public class ChatWindow extends JPanel implements ISubscribe {
         this.hf = hf;
         this.messageSender = messageSender;
 
+        //When user press ENTER or RETURN in input field
         messageInput.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,44 +53,66 @@ public class ChatWindow extends JPanel implements ISubscribe {
                 messageInput.setText("");
             }
         });
+
+        //When user clicks on history since yesterday button.
         historyYesterday.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusDays(1));
-                hist.setVisible(true);
+                showHistorySinceDate(ConfigHandler.getCurrentUTCTime().minusDays(1));
             }
         });
+
+        //When user clicks on "All history" button
         historyEver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(2015, 3, 1, 0, 0, DateTimeZone.UTC));
-                hist.setVisible(true);
+                //Chat creation has begun on 2015-01-03 00:00. Therefore there should be no message anywhere which were
+                //created prior to this date.
+                showHistorySinceDate(new DateTime(2015, 3, 1, 0, 0, DateTimeZone.UTC));
             }
         });
+
+        //When user clicks on "Month History" Button
         historyMonth.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusMonths(1));
-                hist.setVisible(true);
+                showHistorySinceDate(ConfigHandler.getCurrentUTCTime().minusMonths(1));
             }
         });
+
+        //When user clicks on "Hour History" Button
         history1Hour.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusHours(1));
-                hist.setVisible(true);
+                showHistorySinceDate(ConfigHandler.getCurrentUTCTime().minusHours(1));
             }
         });
+
+        //When user clicks on "Week History" Button
         historyWeek.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusDays(7));
-                hist.setVisible(true);
+                showHistorySinceDate(ConfigHandler.getCurrentUTCTime().minusDays(7));
             }
         });
     }
 
+    /**
+     * Creates and shows a history window for all messages since datetime time
+     * @param datetime Show all messages since this time.
+     */
+    private void showHistorySinceDate(DateTime datetime) {
+        HistoryFrame hist = hf.buildHistoryFrame(datetime);
+        hist.setVisible(true);
+    }
+
+    /**
+     * This creates a thread which sends the message.
+     * It is a thread so it gets blocked when the messageSender is currently busy, but still does not block
+     * any other UI Interaction (i.e. it does not block the user to type another message).
+     * @param message
+     * @return
+     */
     private Thread messageSenderThreadFactory(final String message) {
         return new Thread() {
             public void run() {
@@ -96,6 +120,14 @@ public class ChatWindow extends JPanel implements ISubscribe {
             }
         };
     }
+
+    /**
+     * Checks if the input starts with the command prefix "\" by default.
+     * If so it is handed to the commandList.runCommand to check if it is a actual command.
+     * Whatever message the command returns is shown to the user via append.
+     * If the input is not a command, it is considered a message, and is therefore given to the messageSenderThreadFactory
+     * @param input
+     */
 
     private void processInput(String input) {
         if (input.startsWith(COMMAND_PREFIX)) {
@@ -106,6 +138,10 @@ public class ChatWindow extends JPanel implements ISubscribe {
         }
     }
 
+    /**
+     * Prepends the String to the messagePane, i.e. showing it before all other messages currently seen on screen.
+     * @param s
+     */
     private void prepend(String s) {
         try {
             Document doc = messagePane.getDocument();
@@ -115,6 +151,10 @@ public class ChatWindow extends JPanel implements ISubscribe {
         }
     }
 
+    /**
+     * Appends the string to the messagePane, i.e. showing it after all other messages currently seen on screen.
+     * @param s
+     */
     private void append(String s) {
         try {
             Document doc = messagePane.getDocument();
@@ -124,17 +164,26 @@ public class ChatWindow extends JPanel implements ISubscribe {
         }
     }
 
+    /**
+     * Shows the message on screen. Used by the MessageList to show new messages.
+     * @param m
+     */
     @Override
     public void notify(Message m) {
         append(m.getUser() + ": " + m.getBody());
     }
 
+    /**
+     * Shows string on screen.
+     * @param m
+     */
     @Override
     public void notify(String m) {
         append(m);
     }
 
     {
+
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
 // DO NOT EDIT OR ADD ANY CODE HERE!
