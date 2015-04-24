@@ -150,11 +150,19 @@ public class ConfigHandler {
         return new DateTime(DateTimeZone.UTC);
     }
 
+    /**
+     * Checks whether or not a config file currently exist in the install directory.
+     * @return true iff a config file exists
+     */
     public static boolean checkIfConfigExists() {
         File f = new File(CONFIG_FILE_NAME);
         return f.exists() && !f.isDirectory();
     }
 
+    /**
+     * Writes the default config file into the current running directory
+     * @throws IOException
+     */
     public static void writeDefaultConfig() throws IOException {
 
         Document document = getDefaultConfigDocument();
