@@ -135,10 +135,10 @@ public class MessageReceiver implements IMessagePublisher {
 
     /**
      * Returns the message Thread.
-     * The MessageThread checks for changes in the couchDB. This means it checks if documents where changed there,
+     * The MessageThread checks for changes in the couchDB. This means it checks if documents were changed there,
      * e.g. if a new message has been sent.
      * When it starts up it first prints all messages which were sent since the "currentSince" value,
-     * which is set to the last time the user was online on startuo, and is then regularly changed by this thread to
+     * which is set to the created time of the last message the user received in the previous session on startup, and is then regularly changed by this thread to
      * reflect the latest message created time received.
      * Since all those message created times are set on the CouchDB Server, which are synced by NTP, they are within a small error margin
      * correct.
@@ -157,7 +157,8 @@ public class MessageReceiver implements IMessagePublisher {
                         .timeout(3000)
                         .since("now")
                         .continuousChanges();
-                clientWrapper.printHistorySince(ConfigHandler.currentSince); //showing missed messages
+                //We need to skip 1 message, since currentSince is the EXACT date time the last message was actually received which would also be delivered again otherwise.
+                clientWrapper.printHistorySince(ConfigHandler.currentSince, 1); //showing missed messages
                 while (checkIfGoOn(changes)) {
                     ChangesResult.Row feed = changes.next();
                     if (feed != null) { //This needs to be done due to stupidy of lightcouch API (i.e. changes.next() can return "true" even though there is no next.

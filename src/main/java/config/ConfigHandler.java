@@ -134,7 +134,6 @@ public class ConfigHandler {
         return document;
     }
 
-
     private static String getCurrentUTCTimeAsISO() {
         return getCurrentUTCTime().toString(ISODateTimeFormat.dateTime());
     }
@@ -143,6 +142,8 @@ public class ConfigHandler {
      * Currently returns the user pcs current time as UTC ISO8601, which can lead to issues.
      * SHOULD return the UTC time of the CouchDB server in future releases, which use the same NTP Node.
      * Alternatively, use NTP Client to get NTP time instead of CouchDB server time.
+     * However, this is only used to get long term history and does not neseccarly need to be precise, so
+     * this is not a show stopper.
      * @return ISO8601 Formatted DateTime String UTC Time Zone (e.g. 2015-04-23T14:16:14.964Z )
      */
     public static DateTime getCurrentUTCTime(){

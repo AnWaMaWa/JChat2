@@ -34,7 +34,9 @@ public class HistoryFrame extends JFrame implements ISubscribe {
         JScrollPane jScrollPane = new JScrollPane(jTextArea);
         jScrollPane.setLayout(new ScrollPaneLayout());
         this.setLayout(gridLayout);
-        dbc.printHistorySince(jsonTime, this);
+        //Makes DbClientWrapper write all history since jsonTime into the jTextArea via the ISubscribe Interface.
+        //Skips no messages, since all history beginning with jsonTime should be shown
+        dbc.printHistorySince(jsonTime, this,0);
         this.add(jScrollPane);
         this.setPreferredSize(new Dimension(800, 800));
     }

@@ -40,12 +40,11 @@ public class DBClientWrapper implements IClientHandler {
 
     /**
      * Prints all messages received since jsonDateTime to all subscribers of the MessagePublisher, usually only the main chat window
-     * @param jsonDateTime ISO8061 formatted DateTime
+     * @param jsonDateTime ISO8061 formatted UTC DateTime
+     * @param skip Amount of messages which should be skipped
      */
-    public void printHistorySince(String jsonDateTime) {
-        List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
-                .includeDocs(true).startKey(jsonDateTime)
-                .query(Message.class); //calls a view with datetime as start key, meaning it will return all messages since (and including) jsonDateTime
+    public void printHistorySince(String jsonDateTime, int skip) {
+        List<Message> list = getMessagesSince(jsonDateTime,skip);
         for (Message m : list) {
             if (mf.checkIfMessageIsForUser(m)) { //checks if the message is meant for the user using the same filter as the MessageReceiver
                 publisher.publish(m);
@@ -56,13 +55,12 @@ public class DBClientWrapper implements IClientHandler {
 
     /**
      * Sends all messages since jsonDateTime to only one subscriber, which is given as a parameters.
-     * @param jsonDateTime ISO8061 formatted DateTime
+     * @param jsonDateTime ISO8061 formatted UTC DateTime
      * @param sub Subscriber to send to
+     * @param skip Amount of messages which should be skipped
      */
-    public void printHistorySince(String jsonDateTime, ISubscribe sub) {
-        List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
-                .includeDocs(true).startKey(jsonDateTime)
-                .query(Message.class);
+    public void printHistorySince(String jsonDateTime, ISubscribe sub, int skip) {
+        List<Message> list = getMessagesSince(jsonDateTime,0);
         for (Message m : list) {
             if (mf.checkIfMessageIsForUser(m)) {
                 sub.notify(m);
@@ -70,6 +68,19 @@ public class DBClientWrapper implements IClientHandler {
             }
         }
     }
+
+    /**
+     * Returns all messages as a list since jsonDateTime. Skips skip messages.
+     * @param jsonDateTime ISO8061 formatted UTC DateTime
+     * @param skip Amount of messages which should be skipped
+     * @return
+     */
+    private List<Message> getMessagesSince(String jsonDateTime, int skip){
+        return client.view(JCHAT_BY_DATE_VIEW)
+                .includeDocs(true).skip(skip).startKey(jsonDateTime)
+                .query(Message.class);
+    }
+
 
     /**
      * Creates client using the ip and port given as parameters and the currently configured username and password.
