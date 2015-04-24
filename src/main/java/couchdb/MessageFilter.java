@@ -17,6 +17,7 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
     HashSet<String> filter = new HashSet<String>();
     String username;
 
+
     public MessageFilter(String username) {
         this.username = username;
         addDefaultReceivers();
@@ -24,7 +25,6 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
 
     private void addDefaultReceivers() {
         addAcceptedReceiver("@" + username);
-        addAcceptedReceiver("@global");
     }
 
     /**
