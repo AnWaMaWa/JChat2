@@ -2,7 +2,7 @@ import ChatCommands.CommandList;
 import config.ConfigHandler;
 import couchdb.DBClientWrapper;
 import couchdb.MessageFilter;
-import couchdb.MessageList;
+import couchdb.MessageReceiver;
 import couchdb.QuerySender;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
@@ -129,7 +129,7 @@ public class app {
 
 
         MessageFilter mf = new MessageFilter(ConfigHandler.username);
-        MessageList ml = new MessageList(mf);
+        MessageReceiver ml = new MessageReceiver(mf);
 
         DBClientWrapper dbcw = new DBClientWrapper(dbClient, config, ml, mf);
         ml.setClientWrapper(dbcw);
