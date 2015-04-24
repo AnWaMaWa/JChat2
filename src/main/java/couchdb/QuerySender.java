@@ -11,19 +11,18 @@ import java.util.UUID;
  */
 public class QuerySender implements ISendMessage, ISendQuery {
 
-    CouchDbClient couchDbclient;
     private final String MESSAGE_UPDATE_HANDLER = "jchat/addMessage";
     private final String MESSAGE_QUERY_FIELD = "message";
     private final String TO_QUERY_FIELD = "to";
-    private DBClientWrapper dbcw;
+    private DBClientWrapper dbClientWrapper;
 
     private CouchDbClient getCouchDbclient() {
-        return dbcw.getCouchDbClient();
+        return dbClientWrapper.getCouchDbClient();
     }
 
 
-    public QuerySender(DBClientWrapper cdb) {
-        dbcw = cdb;
+    public QuerySender(DBClientWrapper dbClientWrapper) {
+        this.dbClientWrapper = dbClientWrapper;
     }
 
     private String buildMessageQuery(String messageWithReciever) {
@@ -49,7 +48,7 @@ public class QuerySender implements ISendMessage, ISendQuery {
         try {
             getCouchDbclient().invokeUpdateHandler(handler, id, query);
         } catch (CouchDbException ex) {
-            dbcw.replaceCouchDbClient();
+            dbClientWrapper.replaceCouchDbClient();
             sendQuery(handler, id, query);
         }
     }
