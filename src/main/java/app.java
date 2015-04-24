@@ -22,6 +22,9 @@ import java.util.Iterator;
  */
 public class app {
 
+    //Represents the current version and product name
+    private static String PRODUCT_DESIGNATION = "Sasagi v1.0a";
+
     /**
      * This function is used to create a couchDB Client using the ip, port, username and password given as parameters.
      *
@@ -48,7 +51,7 @@ public class app {
 
     /**
      * This function is used to display the login dialog and connect to a database
-     * It uses recursion to retry if the username or password is wrong.
+     * It uses recursion to showLoginDialog if the username or password is wrong.
      * This is mainly done for convenience but could lead to a StackOverflow.
      *
      * @param message This message, if set, will be displayed at the bottom of the login client
@@ -122,7 +125,7 @@ public class app {
         final ConfigHandler config = new ConfigHandler();
 
 
-        CouchDbClient dbClient = retry(null, config);
+        CouchDbClient dbClient = showLoginDialog(PRODUCT_DESIGNATION, config);
 
 
         MessageFilter mf = new MessageFilter(ConfigHandler.username);
@@ -169,7 +172,7 @@ public class app {
      * @param config  ConfigHandler, used to get the server iterator.
      * @return A working and connected CouchDbClient
      */
-    public static CouchDbClient retry(String message, ConfigHandler config) {
+    public static CouchDbClient showLoginDialog(String message, ConfigHandler config) {
 
         CouchDbClient dbClient = null;
         Iterator it = config.getServerIterator();
