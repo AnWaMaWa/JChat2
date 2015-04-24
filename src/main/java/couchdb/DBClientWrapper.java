@@ -49,7 +49,7 @@ public class DBClientWrapper implements IClientHandler {
         for (Message m : list) {
             if (mf.checkIfMessageIsForUser(m)) { //checks if the message is meant for the user using the same filter as the MessageReceiver
                 publisher.publish(m);
-                ConfigHandler.currentSince = m.created;
+                ConfigHandler.currentSince = m.getCreated();
             }//updates the currentSince Timestamp, since users most recent message is shown at the end.
         }
     }
@@ -66,7 +66,7 @@ public class DBClientWrapper implements IClientHandler {
         for (Message m : list) {
             if (mf.checkIfMessageIsForUser(m)) {
                 sub.notify(m);
-                ConfigHandler.currentSince = m.created;
+                ConfigHandler.currentSince = m.getCreated();
             }
         }
     }

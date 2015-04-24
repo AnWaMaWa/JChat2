@@ -165,7 +165,7 @@ public class MessageReceiver implements IMessagePublisher {
                         if (checkIfDocIsOfType(doc, MESSAGE_TYPE)) { //If received document is a message
                             Message m = getCouchDbClient().getGson().fromJson(doc, Message.class);
                             if (messageFilter.checkIfMessageIsForUser(m)) { //if message needs to be seen by user
-                                setCurrentSince(m.created); //update currentSince timestamp
+                                setCurrentSince(m.getCreated()); //update currentSince timestamp
                                 publish(m); //show message to user
                             }
                         } else if (checkIfUserIsOwner(doc)) { //If received document is owned by the current user
@@ -183,7 +183,7 @@ public class MessageReceiver implements IMessagePublisher {
     /**
      * Starts the message and heartbeat threads at startup
      */
-    public void startListeningToChanges() {
+    public void startListeningToDatabaseChanges() {
         setCurrentMessageThread(messageThreadFactory());
         currentMessageThread.start();
         heartbeatThreadFactory().start();

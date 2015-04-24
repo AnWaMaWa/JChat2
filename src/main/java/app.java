@@ -128,19 +128,20 @@ public class app {
         CouchDbClient dbClient = showLoginDialog(PRODUCT_DESIGNATION, config);
 
 
-        MessageFilter mf = new MessageFilter(ConfigHandler.username);
-        MessageReceiver ml = new MessageReceiver(mf);
+        MessageFilter messageFilter = new MessageFilter(ConfigHandler.username);
+        MessageReceiver messageReceiver = new MessageReceiver(messageFilter);
 
-        DBClientWrapper dbcw = new DBClientWrapper(dbClient, config, ml, mf);
-        ml.setClientWrapper(dbcw);
+        DBClientWrapper dbClientWrapper = new DBClientWrapper(dbClient, config, messageReceiver, messageFilter);
+        messageReceiver.setClientWrapper(dbClientWrapper);
 
-        QuerySender ms = new QuerySender(dbcw);
-        HistoryFrameFactory hff = new HistoryFrameFactory(dbcw);
-        CommandList cl = new CommandList(ms, ConfigHandler.username);
-        ChatWindow cw = new ChatWindow(ms, hff, cl, "Inner");
+        QuerySender querySender = new QuerySender(dbClientWrapper);
+        HistoryFrameFactory historyFrameFactory = new HistoryFrameFactory(dbClientWrapper);
+        CommandList commandList = new CommandList(querySender, ConfigHandler.username);
+        ChatWindow chatWindow = new ChatWindow(querySender, historyFrameFactory, commandList, "Inner");
 
-        JFrame mainFrame = new JFrame("Chat Window - " + ConfigHandler.username);
+        JFrame mainFrame = new JFrame(PRODUCT_DESIGNATION + " Window - " + ConfigHandler.username);
 
+        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 try {
@@ -152,16 +153,12 @@ public class app {
             }
         });
 
-        ml.startListeningToChanges();
-        ml.subscribe(cw);
+        messageReceiver.startListeningToDatabaseChanges();
+        messageReceiver.subscribe(chatWindow); //Chat Window will be notified once new messages are received
         mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
-        mainFrame.setContentPane(cw.getMainPane());
-
-        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
+        mainFrame.setContentPane(chatWindow.getMainPane());
         mainFrame.pack();
         mainFrame.setVisible(true);
-
 
     }
 

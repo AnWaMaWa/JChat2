@@ -6,6 +6,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Dialog which is shown for the user to log in.
+ * Created by awaigand on 09.04.2015.
+ */
+
 public class Login extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
@@ -54,11 +59,17 @@ public class Login extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    /**
+     * Does not stop the program.
+     */
     private void onOK() {
         tryToGoOn = true;
         dispose();
     }
 
+    /**
+     * Does stop the program in the main app
+     */
     private void onCancel() {
         tryToGoOn = false;
         dispose();

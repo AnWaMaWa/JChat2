@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Representation of Message Document.
+ * Also offers some convenience methods.
  * Created by awaigand on 09.04.2015.
  */
 public class Message extends Document implements IMessage {
@@ -14,7 +16,7 @@ public class Message extends Document implements IMessage {
     private String message;
     private String owner;
     private String[] to;
-    public String created;
+    private String created;
     private static Pattern receiverPattern = Pattern.compile("(^|\\s)([@#]\\S*)");
 
     public Message(String message, String user) {
@@ -24,7 +26,7 @@ public class Message extends Document implements IMessage {
     }
 
     public Message() {
-
+        super();
     }
 
     /**
@@ -59,5 +61,10 @@ public class Message extends Document implements IMessage {
     @Override
     public String[] getReceiver() {
         return to;
+    }
+
+    @Override
+    public String getCreated() {
+        return created;
     }
 }

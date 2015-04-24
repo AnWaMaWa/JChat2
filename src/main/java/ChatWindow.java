@@ -66,9 +66,11 @@ public class ChatWindow extends JPanel implements ISubscribe {
         historyEver.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //Chat creation has begun on 2015-01-03 00:00. Therefore there should be no message anywhere which were
-                //created prior to this date.
-                showHistorySinceDate(new DateTime(2015, 3, 1, 0, 0, DateTimeZone.UTC));
+                //Ever means since the Unix Epoch began in this case.
+                //This date is used for possible backwards compatibility with other chat systems
+                //So that, potentially, someone could write a MSN Messenger History converter and messages which
+                //were sind by MSN Messenger before the creation of this chat even began would still be displayed
+                showHistorySinceDate(new DateTime(1970, 1, 1, 0, 0, DateTimeZone.UTC));
             }
         });
 
@@ -126,7 +128,7 @@ public class ChatWindow extends JPanel implements ISubscribe {
      * If so it is handed to the commandList.runCommand to check if it is a actual command.
      * Whatever message the command returns is shown to the user via append.
      * If the input is not a command, it is considered a message, and is therefore given to the messageSenderThreadFactory
-     * @param input
+     * @param input Raw User Input
      */
 
     private void processInput(String input) {
