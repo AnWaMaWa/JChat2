@@ -4,7 +4,6 @@ import MessageObserver.Message;
 import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbException;
 
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -23,36 +22,35 @@ public class QuerySender implements ISendMessage, ISendQuery {
     }
 
 
-
-    public QuerySender(DBClientWrapper cdb){
+    public QuerySender(DBClientWrapper cdb) {
         dbcw = cdb;
     }
 
-    private String buildMessageQuery(String messageWithReciever){
+    private String buildMessageQuery(String messageWithReciever) {
         Message message = Message.FromMessageAndReceiverFactory(messageWithReciever);
-        if(message.getReceiver()!=null)
-            return buildQueryField(MESSAGE_QUERY_FIELD,message.getBody())+"&"+buildQueryField(TO_QUERY_FIELD,getCouchDbclient().getGson().toJson(message.getReceiver()));
+        if (message.getReceiver() != null)
+            return buildQueryField(MESSAGE_QUERY_FIELD, message.getBody()) + "&" + buildQueryField(TO_QUERY_FIELD, getCouchDbclient().getGson().toJson(message.getReceiver()));
         else
-            return buildQueryField(MESSAGE_QUERY_FIELD,message.getBody());
+            return buildQueryField(MESSAGE_QUERY_FIELD, message.getBody());
     }
 
-    private String buildQueryField(String field, String value){
-        return field + "=" +value;
+    private String buildQueryField(String field, String value) {
+        return field + "=" + value;
     }
 
     @Override
     public void sendMessage(String messageWithReceiver) {
         String query = buildMessageQuery(messageWithReceiver);
-        sendQuery(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(),query);
+        sendQuery(MESSAGE_UPDATE_HANDLER, UUID.randomUUID().toString(), query);
     }
 
     @Override
     public void sendQuery(String handler, String id, String query) {
         try {
             getCouchDbclient().invokeUpdateHandler(handler, id, query);
-        }catch(CouchDbException ex){
+        } catch (CouchDbException ex) {
             dbcw.replaceCouchDbClient();
-            sendQuery(handler,id,query);
+            sendQuery(handler, id, query);
         }
     }
 }

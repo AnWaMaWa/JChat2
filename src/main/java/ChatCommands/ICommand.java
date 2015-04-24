@@ -5,5 +5,6 @@ package ChatCommands;
  */
 public interface ICommand {
     public String run(String commandArgs);
+
     public String getCommand();
 }

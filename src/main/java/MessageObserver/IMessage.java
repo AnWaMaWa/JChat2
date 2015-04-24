@@ -5,6 +5,8 @@ package MessageObserver;
  */
 public interface IMessage {
     public String getBody();
+
     public String getUser();
+
     public String[] getReceiver();
 }

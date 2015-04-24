@@ -5,5 +5,6 @@ package couchdb;
  */
 public interface IExtendReceiverFilter {
     public void addAcceptedReceiver(String receiverName);
+
     public void removeAcceptedReceiver(String receiverName);
 }

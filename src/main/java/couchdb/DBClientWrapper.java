@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by awaigand on 21.04.2015.
  */
-public class DBClientWrapper implements IClientHandler{
+public class DBClientWrapper implements IClientHandler {
 
     public static final String JCHAT_BY_DATE_VIEW = "jchat/byDate";
     Lock lookForServersLock = new ReentrantLock(true);
@@ -27,37 +27,37 @@ public class DBClientWrapper implements IClientHandler{
     IMessagePublisher publisher;
     IFilterMessage mf;
 
-    public DBClientWrapper(CouchDbClient cbd, ConfigHandler config, IMessagePublisher publisher, IFilterMessage mf){
+    public DBClientWrapper(CouchDbClient cbd, ConfigHandler config, IMessagePublisher publisher, IFilterMessage mf) {
         this.client = cbd;
         this.config = config;
         this.publisher = publisher;
         this.mf = mf;
     }
 
-    public void printHistorySince(String jsonDateTime){
+    public void printHistorySince(String jsonDateTime) {
         List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
                 .includeDocs(true).startKey(jsonDateTime)
                 .query(Message.class);
-        for(Message m : list){
-            if(mf.checkIfMessageIsForUser(m))
+        for (Message m : list) {
+            if (mf.checkIfMessageIsForUser(m))
                 publisher.publish(m);
-                ConfigHandler.currentSince = m.created;
+            ConfigHandler.currentSince = m.created;
         }
     }
 
-    public void printHistorySince(String jsonDateTime, ISubscribe sub){
+    public void printHistorySince(String jsonDateTime, ISubscribe sub) {
         List<Message> list = client.view(JCHAT_BY_DATE_VIEW)
                 .includeDocs(true).startKey(jsonDateTime)
                 .query(Message.class);
-        for(Message m : list){
-            if(mf.checkIfMessageIsForUser(m)) {
+        for (Message m : list) {
+            if (mf.checkIfMessageIsForUser(m)) {
                 sub.notify(m);
                 ConfigHandler.currentSince = m.created;
             }
         }
     }
 
-    private CouchDbClient createClient(String ip, String port) throws CouchDbException{
+    private CouchDbClient createClient(String ip, String port) throws CouchDbException {
         CouchDbProperties properties = new CouchDbProperties()
                 .setDbName("jchat")
                 .setCreateDbIfNotExist(false)
@@ -72,30 +72,30 @@ public class DBClientWrapper implements IClientHandler{
         return new CouchDbClient(properties);
     }
 
-    private CouchDbClient testNextNode(Node server) throws CouchDbException{
+    private CouchDbClient testNextNode(Node server) throws CouchDbException {
         CouchDbClient testclient = createClient(ConfigHandler.getIPFromServerNode(server), ConfigHandler.getPortFromServerNode(server));
         return testclient;
     }
 
     private CouchDbClient recursiveTest(Iterator it) throws NoMoreServerException {
-        try{
-            if(it.hasNext()){
-                return testNextNode((Node)it.next());
-            }else{
+        try {
+            if (it.hasNext()) {
+                return testNextNode((Node) it.next());
+            } else {
                 throw new NoMoreServerException();
             }
-        }catch(CouchDbException ex){
+        } catch (CouchDbException ex) {
             publisher.publish("Could not connect to node. Trying next");
             return recursiveTest(it);
         }
     }
 
-    private void startReplacing(){
+    private void startReplacing() {
         Iterator it = config.getServerIterator();
         try {
             client = recursiveTest(it);
             publisher.publish("Reconnected! Carry on!");
-        }catch(NoMoreServerException ex){
+        } catch (NoMoreServerException ex) {
             publisher.publish("Tried all servers, Check your internet connection! Retrying in a bit...");
             try {
                 Thread.sleep(15000);
@@ -106,15 +106,15 @@ public class DBClientWrapper implements IClientHandler{
         }
     }
 
-    public void replaceCouchDbClient(){
-        if(lookForServersLock.tryLock()){
-            try{
+    public void replaceCouchDbClient() {
+        if (lookForServersLock.tryLock()) {
+            try {
                 publisher.publish("You seem to have connection problems, trying other servers...");
                 startReplacing();
-            }finally {
+            } finally {
                 lookForServersLock.unlock();
             }
-        }else{
+        } else {
             //lock is already active. Wait for Lock to be unlocked
             lookForServersLock.lock();
             lookForServersLock.unlock();
@@ -122,7 +122,7 @@ public class DBClientWrapper implements IClientHandler{
         }
     }
 
-    public CouchDbClient getCouchDbClient(){
+    public CouchDbClient getCouchDbClient() {
         //lock is already active. Wait for Lock to be unlocked
         lookForServersLock.lock();
         lookForServersLock.unlock();

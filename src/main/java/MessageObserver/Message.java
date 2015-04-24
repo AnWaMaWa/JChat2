@@ -17,17 +17,17 @@ public class Message extends Document implements IMessage {
     public String created;
     private static Pattern receiverPattern = Pattern.compile("(^|\\s)([@#]\\S*)");
 
-    public Message(String message, String user){
+    public Message(String message, String user) {
         this.message = message;
         this.owner = user;
 
     }
 
-    public Message(){
+    public Message() {
 
     }
 
-    public static Message FromMessageAndReceiverFactory(String messageAndReceiver){
+    public static Message FromMessageAndReceiverFactory(String messageAndReceiver) {
         Message message = new Message();
         Matcher m = receiverPattern.matcher(messageAndReceiver);
         ArrayList<String> temp = new ArrayList<String>();

@@ -7,5 +7,6 @@ import org.lightcouch.CouchDbClient;
  */
 public interface IClientHandler {
     public void replaceCouchDbClient();
+
     public CouchDbClient getCouchDbClient();
 }

@@ -9,7 +9,7 @@ public class Filter extends Document {
     private String owner;
     private String[] filter;
 
-    public String[] getFilter(){
+    public String[] getFilter() {
         return filter;
     }
 }

@@ -1,7 +1,6 @@
 package ChatCommands;
 
 import couchdb.ISendQuery;
-import org.lightcouch.CouchDbClient;
 
 /**
  * Created by awaigand on 10.04.2015.
@@ -19,22 +18,22 @@ public class JoinGroupCommand extends AbstractCouchCommand {
         this.username = username;
     }
 
-    private String getFilterDocumentId(){
-        return FILTER_DOCUMENT_ID_PREFIX +username;
+    private String getFilterDocumentId() {
+        return FILTER_DOCUMENT_ID_PREFIX + username;
     }
 
-    private boolean checkCommandArgs(String commandArgs){
+    private boolean checkCommandArgs(String commandArgs) {
         return !commandArgs.contains(" ") && commandArgs.startsWith("#");
     }
 
     @Override
     public String run(String commandArgs) {
-         if(checkCommandArgs(commandArgs)) {
-             getQuerySender().sendQuery(JOIN_GROUP_UPDATE_HANDLER,getFilterDocumentId(),buildQueryField(FILTER_QUERY_PARAM,commandArgs));
-             return "Joined group " + commandArgs;
-         }else{
-             return "The group you want to join can not contain spaces and has to start with a #! Your input: " + commandArgs;
-         }
+        if (checkCommandArgs(commandArgs)) {
+            getQuerySender().sendQuery(JOIN_GROUP_UPDATE_HANDLER, getFilterDocumentId(), buildQueryField(FILTER_QUERY_PARAM, commandArgs));
+            return "Joined group " + commandArgs;
+        } else {
+            return "The group you want to join can not contain spaces and has to start with a #! Your input: " + commandArgs;
+        }
     }
 
     @Override

@@ -1,7 +1,5 @@
 package couchdb;
 
-import MessageObserver.Message;
-
 /**
  * Created by awaigand on 09.04.2015.
  */

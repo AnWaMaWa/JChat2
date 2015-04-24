@@ -1,5 +1,4 @@
 import ChatCommands.CommandList;
-import CustomException.NoMoreServerException;
 import config.ConfigHandler;
 import couchdb.DBClientWrapper;
 import couchdb.MessageFilter;
@@ -23,127 +22,169 @@ import java.util.Iterator;
  */
 public class app {
 
-    public static String username = "default";
-    public static String password = "default";
+    /**
+     * This function is used to create a couchDB Client using the ip, port, username and password given as parameters.
+     *
+     * @param ip       IP of CouchDB Server
+     * @param port     Port of CouchDB Server
+     * @param username Username
+     * @param password Password
+     * @return
+     */
+    public static CouchDbClient getCouchDBClientForIpAndPort(String ip, String port, String username, String password) throws CouchDbException {
+        CouchDbProperties properties = new CouchDbProperties()
+                .setDbName("jchat")
+                .setCreateDbIfNotExist(false)
+                .setProtocol("http")
+                .setHost(ip)
+                .setPort(Integer.parseInt(port))
+                .setUsername(password)
+                .setPassword(password)
+                .setMaxConnections(100)
+                .setConnectionTimeout(0);
 
-    public static CouchDbClient login(String error, Iterator serverIterator) throws IllegalComponentStateException, NoMoreServerException {
+        return new CouchDbClient(properties);
+    }
+
+    /**
+     * This function is used to display the login dialog and connect to a database
+     * It uses recursion to retry if the username or password is wrong.
+     * This is mainly done for convenience but could lead to a StackOverflow.
+     *
+     * @param message This message, if set, will be displayed at the bottom of the login client
+     * @param server  This xml Node will be used to get the server IP and Port
+     * @return CouchDBClient Null if could not connect
+     */
+
+    public static CouchDbClient login(String message, Node server) {
         CouchDbClient dbClient = null;
         String ip = "";
         String port = "";
         try {
+            //These two static message get the relevant values from the XML Node "server"
+            ip = ConfigHandler.getIPFromServerNode(server);
+            port = ConfigHandler.getPortFromServerNode(server);
 
-            if(serverIterator.hasNext()){
-                Node server = (Node) serverIterator.next();
-                ip = ConfigHandler.getIPFromServerNode(server);
-                port = ConfigHandler.getPortFromServerNode(server);
-            }
-            else{
-                throw new NoMoreServerException();
-            }
             Login dialog = new Login();
-            if (error != null)
-                dialog.toolbarText.setText(error);
+            if (message != null)
+                dialog.toolbarText.setText(message);
             dialog.pack();
             dialog.setVisible(true);
+
+            //tryToGoOn is false when the user presses cancel
             if (!dialog.tryToGoOn)
-                throw new IllegalComponentStateException();
+                System.exit(0);
 
-            CouchDbProperties properties = new CouchDbProperties()
-                    .setDbName("jchat")
-                    .setCreateDbIfNotExist(false)
-                    .setProtocol("http")
-                    .setHost(ip)
-                    .setPort(Integer.parseInt(port))
-                    .setUsername(dialog.getUsername())
-                    .setPassword(dialog.getPassword())
-                    .setMaxConnections(100)
-                    .setConnectionTimeout(0);
+            dbClient = getCouchDBClientForIpAndPort(ip, port, dialog.getUsername(), dialog.getPassword());
 
-            dbClient = new CouchDbClient(properties);
-            username = dialog.getUsername();
-            password = dialog.getPassword();
+            ConfigHandler.username = dialog.getUsername();
+            ConfigHandler.password = dialog.getPassword();
+
             return dbClient;
 
+          /* A Couchdbexception is thrown by the LightCouch Library when something went wrong in a general sense
+             To find out what exactly went wrong, the quickest way is to string-compare the Exception Message
+           */
         } catch (CouchDbException ex) {
 
-            if(ex.getMessage().startsWith("Unauthorized")) {
+            //Password wrong, Login wrong or anything like that
+            if (ex.getMessage().startsWith("Unauthorized")) {
                 if (dbClient != null) {
                     dbClient.shutdown();
                 }
-                return login(ex.getMessage(), serverIterator);
-            }
-            else{
-                return login("Could not connect to " + ip + ":" + port + " Try next node.",serverIterator);
+                //retry with same IP and Port
+                return login(ex.getMessage(), server);
+            } //Most likely a network error or the server is down.
+            else {
+                return null;
             }
         }
     }
 
+    /**
+     * Main Method
+     *
+     * @param args
+     * @throws DocumentException Is thrown when something went wrong with reading or writing the Config File
+     */
 
-    public static void main(String[] args) throws DocumentException, NoMoreServerException {
+    public static void main(String[] args) throws DocumentException {
 
-        if(!ConfigHandler.checkIfConfigExists())
+
+        if (!ConfigHandler.checkIfConfigExists())
             try {
                 ConfigHandler.writeDefaultConfig();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
+
         final ConfigHandler config = new ConfigHandler();
 
-        try {
+
+        CouchDbClient dbClient = retry(null, config);
 
 
+        MessageFilter mf = new MessageFilter(ConfigHandler.username);
+        MessageList ml = new MessageList(mf);
 
-            CouchDbClient dbClient = retry(null, config);
-            ConfigHandler.username = username;
-            ConfigHandler.password = password;
+        DBClientWrapper dbcw = new DBClientWrapper(dbClient, config, ml, mf);
+        ml.setClientWrapper(dbcw);
 
-            MessageFilter mf = new MessageFilter(username);
-            MessageList ml = new MessageList(mf);
+        QuerySender ms = new QuerySender(dbcw);
+        HistoryFrameFactory hff = new HistoryFrameFactory(dbcw);
+        CommandList cl = new CommandList(ms, ConfigHandler.username);
+        ChatWindow cw = new ChatWindow(ms, hff, cl, "Inner");
 
-            DBClientWrapper dbcw = new DBClientWrapper(dbClient,config,ml, mf);
-            ml.setClientWrapper(dbcw);
+        JFrame mainFrame = new JFrame("Chat Window - " + ConfigHandler.username);
 
-            QuerySender ms = new QuerySender(dbcw);
-            HistoryFrameFactory hff = new HistoryFrameFactory(dbcw);
-            CommandList cl = new CommandList(ms, username);
-            ChatWindow cw = new ChatWindow(ms, hff,cl, "Inner");
-
-            JFrame mainFrame = new JFrame("Chat Window - " + username);
-
-            mainFrame.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
-                    try {
-                        config.writeSinceTime();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                        System.exit(0);
+        mainFrame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    config.writeSinceTime();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            });
+                System.exit(0);
+            }
+        });
 
-            ml.startListeningToChanges();
-            ml.subscribe(cw);
-            mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
-            mainFrame.setContentPane(cw.getMainPane());
+        ml.startListeningToChanges();
+        ml.subscribe(cw);
+        mainFrame.getContentPane().setPreferredSize(new Dimension(500, 500));
+        mainFrame.setContentPane(cw.getMainPane());
 
-            mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-            mainFrame.pack();
-            mainFrame.setVisible(true);
-        } catch (IllegalComponentStateException ex) {
-
-        }
+        mainFrame.pack();
+        mainFrame.setVisible(true);
 
 
     }
-    public static CouchDbClient retry(String initialError, ConfigHandler config) throws IllegalComponentStateException{
-        try {
-            Iterator it = config.getServerIterator();
-            return login(initialError, it);
-        }catch(NoMoreServerException ex){
-            return retry("Failed. No More Servers to try. Check your internet connection. Trying them all again from now", config);
+
+    /**
+     * Used for looping login trys and resetting the server iterator once all nodes have been tried.
+     *
+     * @param message A message which will be displayed at the bottom of the login page
+     * @param config  ConfigHandler, used to get the server iterator.
+     * @return A working and connected CouchDbClient
+     */
+    public static CouchDbClient retry(String message, ConfigHandler config) {
+
+        CouchDbClient dbClient = null;
+        Iterator it = config.getServerIterator();
+        while (dbClient == null) {
+            if (it.hasNext()) {
+                dbClient = login(message, (Node) it.next());
+                if (dbClient == null) {
+                    message = "Could not connect to Node. Trying next...";
+                }
+            } else {
+                it = config.getServerIterator();
+                message = "Failed. No more servers to try. Check your internet connection. Trying them all again.";
+            }
         }
+        return dbClient;
     }
 
 }

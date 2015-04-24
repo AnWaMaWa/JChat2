@@ -10,6 +10,7 @@ import java.util.List;
 public interface IMessageHistory {
     /**
      * Gets limit number of messages at most, starting from offset message in the past, backwards
+     *
      * @param offset
      * @param limit
      */

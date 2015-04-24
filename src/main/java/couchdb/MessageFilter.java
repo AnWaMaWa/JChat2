@@ -2,23 +2,24 @@ package couchdb;
 
 import MessageObserver.Message;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Created by awaigand on 10.04.2015.
  */
-public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IReplaceFilter{
+public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IReplaceFilter {
 
     HashSet<String> filter = new HashSet<String>();
     String username;
 
-    public MessageFilter(String username){
+    public MessageFilter(String username) {
         this.username = username;
         addDefaultReceivers();
     }
 
-    private void addDefaultReceivers(){
-        addAcceptedReceiver("@"+username);
+    private void addDefaultReceivers() {
+        addAcceptedReceiver("@" + username);
         addAcceptedReceiver("@global");
     }
 
@@ -34,10 +35,10 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
 
     @Override
     public boolean checkIfMessageIsForUser(Message m) {
-        if(m.getReceiver().length == 0)
+        if (m.getReceiver().length == 0)
             return true; //global
-        for(String receiver : m.getReceiver()){
-            if(filter.contains(receiver))
+        for (String receiver : m.getReceiver()) {
+            if (filter.contains(receiver))
                 return true;
         }
         return username.equals(m.getUser());
@@ -45,7 +46,7 @@ public class MessageFilter implements IExtendReceiverFilter, IFilterMessage, IRe
 
     @Override
     public void replaceFilter(String[] filters) {
-        filter =  new HashSet<String>(Arrays.asList(filters));
+        filter = new HashSet<String>(Arrays.asList(filters));
         addDefaultReceivers();
     }
 }

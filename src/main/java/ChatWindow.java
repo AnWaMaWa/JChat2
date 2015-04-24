@@ -54,6 +54,7 @@ public class ChatWindow extends JPanel implements ISubscribe {
         historyYesterday.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 HistoryFrame hist = hf.buildHistoryFrame(new DateTime(DateTimeZone.UTC).minusDays(1));
                 hist.setVisible(true);
             }

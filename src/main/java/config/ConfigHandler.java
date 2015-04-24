@@ -1,7 +1,6 @@
 package config;
 
 import org.dom4j.*;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.joda.time.DateTime;
@@ -40,13 +39,13 @@ public class ConfigHandler {
         this.document = document;
     }
 
-    public void writeSinceTime() throws IOException{
+    public void writeSinceTime() throws IOException {
         Element ele = (Element) document.selectSingleNode(SINCE_XPATH);
         ele.setText(currentSince);
         XMLWriter writer = new XMLWriter(
                 new FileWriter(CONFIG_FILE_NAME)
         );
-        writer.write( document );
+        writer.write(document);
         writer.close();
     }
 
@@ -64,26 +63,26 @@ public class ConfigHandler {
     }
 
 
-    public static String getIPFromServerNode(Node server){
-        return server.valueOf("@"+IP_ATTRIBUTE_NAME);
+    public static String getIPFromServerNode(Node server) {
+        return server.valueOf("@" + IP_ATTRIBUTE_NAME);
     }
 
-    public static String getPortFromServerNode(Node server){
-        return server.valueOf("@"+PORT_ATTRIBUTE_NAME);
+    public static String getPortFromServerNode(Node server) {
+        return server.valueOf("@" + PORT_ATTRIBUTE_NAME);
     }
 
-    public java.util.Iterator getServerIterator(){
+    public java.util.Iterator getServerIterator() {
         List servers = document.selectNodes("//" + SERVER_ELEMENT_NAME);
         return servers.iterator();
     }
 
-    private static void addServerToElement(Element serversElement, String ip, String port ){
+    private static void addServerToElement(Element serversElement, String ip, String port) {
         Element singleServer = serversElement.addElement(SERVER_ELEMENT_NAME);
-        singleServer.addAttribute(IP_ATTRIBUTE_NAME,ip);
-        singleServer.addAttribute(PORT_ATTRIBUTE_NAME,port);
+        singleServer.addAttribute(IP_ATTRIBUTE_NAME, ip);
+        singleServer.addAttribute(PORT_ATTRIBUTE_NAME, port);
     }
 
-    private static Document getDefaultConfigDocument(){
+    private static Document getDefaultConfigDocument() {
         Document document = DocumentHelper.createDocument();
         Element root = document.addElement(ROOT_ELEMENT_NAME);
         Element servers = root.addElement(SERVERS_ELEMENT_NAME);
@@ -95,22 +94,21 @@ public class ConfigHandler {
         return document;
     }
 
-    public static boolean checkIfConfigExists(){
+    public static boolean checkIfConfigExists() {
         File f = new File(CONFIG_FILE_NAME);
         return f.exists() && !f.isDirectory();
     }
 
-    public static void writeDefaultConfig()throws IOException {
+    public static void writeDefaultConfig() throws IOException {
 
         Document document = getDefaultConfigDocument();
         XMLWriter writer = new XMLWriter(
                 new FileWriter(CONFIG_FILE_NAME)
         );
-        writer.write( document );
+        writer.write(document);
         writer.close();
 
     }
-
 
 
 }

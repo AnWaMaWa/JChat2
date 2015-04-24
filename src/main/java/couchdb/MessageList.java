@@ -51,40 +51,40 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         setMessageFilter(mf);
     }
 
-    private void setCurrentMessageThread(Thread messageThread){
+    private void setCurrentMessageThread(Thread messageThread) {
         this.currentMessageThread = messageThread;
     }
 
-    private synchronized void setCurrentSince(String since){
+    private synchronized void setCurrentSince(String since) {
         ConfigHandler.currentSince = since;
     }
 
-    private synchronized String getCurrentSince(){
+    private synchronized String getCurrentSince() {
         return ConfigHandler.currentSince;
     }
 
-    private boolean checkIfGoOn(Changes changes){
+    private boolean checkIfGoOn(Changes changes) {
         try {
             return changes.hasNext();
-        }catch(CouchDbException ex){
+        } catch (CouchDbException ex) {
             lookForOtherNode();
             return false;
         }
     }
 
-    private Thread heartbeatThreadFactory(){
-        return new Thread("heartbeat"){
-            public void run(){
+    private Thread heartbeatThreadFactory() {
+        return new Thread("heartbeat") {
+            public void run() {
                 try {
                     while (true) {
                         getCouchDbClient().context().info();
                         Thread.sleep(15000);
                     }
-                }catch(CouchDbException ex){
+                } catch (CouchDbException ex) {
                     publish("Lost connection to current server... trying others...");
                     currentMessageThread.stop();
                     lookForOtherNode();
-                }catch(InterruptedException ex){
+                } catch (InterruptedException ex) {
 
                 }
             }
@@ -97,9 +97,9 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         currentMessageThread.start();
     }
 
-    private Thread messageThreadFactory(){
-        return new Thread(){
-            public void run(){
+    private Thread messageThreadFactory() {
+        return new Thread() {
+            public void run() {
                 final Changes changes = getCouchDbClient().changes()
                         .includeDocs(true)
                         .heartBeat(1000)
@@ -109,18 +109,18 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
                 clientWrapper.printHistorySince(ConfigHandler.currentSince); //printing missed messages
                 while (checkIfGoOn(changes)) {
                     ChangesResult.Row feed = changes.next();
-                    if(feed != null) {
+                    if (feed != null) {
                         String docId = feed.getId();
                         JsonObject doc = feed.getDoc();
-                        if(checkIfDocIsOfType(doc,MESSAGE_TYPE)){
-                            Message m = getCouchDbClient().getGson().fromJson(doc,Message.class);
-                            if(messageFilter.checkIfMessageIsForUser(m)) {
+                        if (checkIfDocIsOfType(doc, MESSAGE_TYPE)) {
+                            Message m = getCouchDbClient().getGson().fromJson(doc, Message.class);
+                            if (messageFilter.checkIfMessageIsForUser(m)) {
                                 setCurrentSince(m.created);
                                 publish(m);
                             }
-                        }else if(checkIfUserIsOwner(doc)){
-                            if(checkIfDocIsOfType(doc,FILTER_TYPE)){
-                                Filter f = getCouchDbClient().getGson().fromJson(doc,Filter.class);
+                        } else if (checkIfUserIsOwner(doc)) {
+                            if (checkIfDocIsOfType(doc, FILTER_TYPE)) {
+                                Filter f = getCouchDbClient().getGson().fromJson(doc, Filter.class);
                                 messageFilter.replaceFilter(f.getFilter());
                             }
                         }
@@ -130,14 +130,14 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         };
     }
 
-    public void startListeningToChanges(){
+    public void startListeningToChanges() {
         CouchDbInfo dbInfo = getCouchDbClient().context().info();
         setCurrentMessageThread(messageThreadFactory());
         currentMessageThread.start();
         heartbeatThreadFactory().start();
     }
 
-    private boolean checkIfUserIsOwner(JsonObject doc){
+    private boolean checkIfUserIsOwner(JsonObject doc) {
         return doc.has(OWNER) && doc.get(OWNER).getAsString().equals(messageFilter.username);
     }
 
@@ -145,18 +145,18 @@ public class MessageList implements IMessagePublisher, IMessageHistory {
         return doc.has(TYPE) && doc.get(TYPE).getAsString().equals(type);
     }
 
-    private Message convertJsonObjectToMessage(JsonObject doc){
+    private Message convertJsonObjectToMessage(JsonObject doc) {
         return new Message(doc.get(MESSAGE_TYPE).toString(), doc.get(EDITED_BY).toString());
     }
 
-    public synchronized void publish(Message m){
-        for(ISubscribe sub : subscribers){
+    public synchronized void publish(Message m) {
+        for (ISubscribe sub : subscribers) {
             sub.notify(m);
         }
     }
 
-    public synchronized void publish(String m){
-        for(ISubscribe sub : subscribers){
+    public synchronized void publish(String m) {
+        for (ISubscribe sub : subscribers) {
             sub.notify(m);
         }
     }
