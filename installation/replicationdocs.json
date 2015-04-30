@@ -1,27 +1,34 @@
+
+//for messages one way
 {
-  "source": "http://hone:hone1@193.196.7.76:8080/jchat",
-  "target": "http://admin:admin@127.0.0.1:8080/jchat",
+  "source": "http://admin:admin1@server1/_users",
+  "target": "http://admin:admin2@server2/_users",
   "continuous": true,
   "create_target": true,
 }
 
+
+//for messages other way
 {
-  "target": "http://hone:hone1@193.196.7.76:8080/jchat",
-  "source": "http://admin:admin@127.0.0.1:8080/jchat",
+  "target": "http://admin:admin1@server1/_users",
+  "source": "http://admin:admin2@server2/_users",
   "continuous": true,
   "create_target": true
 }
 
+//for users one way way
 {
-  "target": "http://hone:hone1@193.196.7.76:8080/_users",
-  "source": "http://admin:admin@127.0.0.1:8080/_users",
+  "target": "http://admin:admin1@server1/_users",
+  "source": "http://admin:admin2@server2/_users",
   "continuous": true,
   "create_target": true
 }
 
+//for users other way
+
 {
-  "source": "http://hone:hone1@193.196.7.76:8080/_users",
-  "target": "http://admin:admin@127.0.0.1:8080/_users",
+  "source": "http://admin:admin1@server1/_users",
+  "target": "http://admin:admin2@server2/_users",
   "continuous": true,
   "create_target": true
 }

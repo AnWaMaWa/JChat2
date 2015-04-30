@@ -2,3 +2,4 @@
 
 # Declare files that will always have LF line endings on checkout.
 installation/install.sh text eol=lf
+installation/designdoc.json text eol=lf
