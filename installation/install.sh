@@ -8,8 +8,6 @@ BAREHOST="http://127.0.0.1:5984"
 
 curl -X PUT $BAREHOST/_config/admins/$uname -d '"'$passw'"' ; echo
 
-git clone https://github.com/awaigand/couchdb-dbperuser-provisioning.git
-(cd /vagrant/couchdb-dbperuser-provisioning; sudo npm -g install)
 
 HOST=http://$uname:$passw@127.0.0.1:5984 # or whatever you got
 
@@ -27,5 +25,7 @@ curl -X PUT $HOST/_config/couch_httpd_auth/timeout -d '"36000000"'
 curl -X PUT $HOST/_config/os_daemons/hone_provision_daemon -d '"/usr/bin/nodejs /usr/local/bin/couchdb-hexprovision hone_provisioning"'
 curl -X PUT $HOST/_config/cors/headers -d '"accept, authorization, content-type, origin, referer, x-csrf-token,cookies"'
 curl -X PUT $HOST/_config/httpd/port -d '"8080"'
+curl -X PUT $HOST/jchat
+curl -X PUT $HOST/jchat/_design/jchat -d @designdoc.json
 
 curl -X POST http://$uname:$passw@localhost:8080/_restart -H"Content-Type: application/json"
