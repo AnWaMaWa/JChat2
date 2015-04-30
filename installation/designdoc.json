@@ -1,6 +1,5 @@
 {
   "_id": "_design/jchat",
-  "_rev": "28-14fade7588f4679d0153a9e37c4d1d47",
   "views": {
     "basic": {
       "map": "function(doc) {\n  emit(doc._id, 1);\n}"

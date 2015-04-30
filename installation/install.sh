@@ -24,8 +24,6 @@ curl -X PUT $HOST/_config/couch_httpd_auth/timeout -d '"36000000"'
 #Depending on your OS  these paths might change. Be careful!
 curl -X PUT $HOST/_config/os_daemons/hone_provision_daemon -d '"/usr/bin/nodejs /usr/local/bin/couchdb-hexprovision hone_provisioning"'
 curl -X PUT $HOST/_config/cors/headers -d '"accept, authorization, content-type, origin, referer, x-csrf-token,cookies"'
-curl -X PUT $HOST/_config/httpd/port -d '"8080"'
 curl -X PUT $HOST/jchat
 curl -X PUT $HOST/jchat/_design/jchat -d @designdoc.json
-
-curl -X POST http://$uname:$passw@localhost:8080/_restart -H"Content-Type: application/json"
+curl -X PUT $HOST/_config/httpd/port -d '"8080"'
