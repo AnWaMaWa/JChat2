@@ -1,0 +1,20 @@
+{
+  "_id": "_design/jchat",
+  "_rev": "28-14fade7588f4679d0153a9e37c4d1d47",
+  "views": {
+    "basic": {
+      "map": "function(doc) {\n  emit(doc._id, 1);\n}"
+    },
+    "byDate": {
+      "map": "function(doc) {\n  if(doc.type==\"message\" && Object.prototype.toString.call( doc.to ) === '[object Array]' )\n  emit(doc.created, doc);\n}"
+    }
+  },
+  "language": "javascript",
+  "updates": {
+    "addMessage": "function(doc,req){ receiver = []; if(!req.query.to) {receiver.push('@global');} else {receiver = JSON.parse(req.query.to);} return [{ _id: req.id, owner: req.userCtx.name, to: receiver, message: req.query.message, created: new Date(), type: 'message'},'new Message'];}",
+    "joinGroup": "function(doc,req){ if(doc){ if(doc.owner != req.userCtx.name){return [doc, 'nothing changed'];}else{  if(doc.filter.indexOf(req.query.filter)<0) {doc.filter.push(req.query.filter);} return[doc, 'added Filter']; } }else { return[{_id: 'filter-'+req.userCtx.name, filter:[req.query.filter], owner: req.userCtx.name, type:'filter'}, 'new filterdoc'];}}"
+  },
+  "shows": {
+    "time": "function(doc, req){ var now = new Date(); var output = JSON.parse(JSON.stringify(now)); return { code:200, headers: { 'Content-Type': 'application/json'}, body: output}; }"
+  }
+}
