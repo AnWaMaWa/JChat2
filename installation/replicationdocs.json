@@ -1,0 +1,27 @@
+{
+  "source": "http://hone:hone1@193.196.7.76:8080/jchat",
+  "target": "http://admin:admin@127.0.0.1:8080/jchat",
+  "continuous": true,
+  "create_target": true,
+}
+
+{
+  "target": "http://hone:hone1@193.196.7.76:8080/jchat",
+  "source": "http://admin:admin@127.0.0.1:8080/jchat",
+  "continuous": true,
+  "create_target": true
+}
+
+{
+  "target": "http://hone:hone1@193.196.7.76:8080/_users",
+  "source": "http://admin:admin@127.0.0.1:8080/_users",
+  "continuous": true,
+  "create_target": true
+}
+
+{
+  "source": "http://hone:hone1@193.196.7.76:8080/_users",
+  "target": "http://admin:admin@127.0.0.1:8080/_users",
+  "continuous": true,
+  "create_target": true
+}
